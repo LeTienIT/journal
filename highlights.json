@@ -1,8 +1,10 @@
 {
+  "Bé Con": "#FFB3BA",
   "Bé Còi": "#ff9aa2",
   "em": "#ffb7b2",
-  "anh": "#a0c4ff",
-  "vui": "#ffd6a5",
-  "nhật ký": "#bdb2ff",
-  "ngủ ngon": "#ffc6ff"
+  "ngủ ngon": "#ffc6ff",
+
+  "coi như đồng ý nhé": "#FFDFBA",
+
+  "sự ưu tiên": "#C7CEEA"
 }
