@@ -1,293 +1,298 @@
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-}
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-html, body {
-  height: 100%;
-  overflow: hidden;
-  background: #050505;
-  color: #e8e0d5;
-  font-family: "Georgia", "Times New Roman", serif;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-}
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #050505;
+      color: #e8e0d5;
+      font-family: "Georgia", "Times New Roman", serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
 
-#canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
+    #canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-.container {
-  position: relative;
-  z-index: 10;
-  height: 100%;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px 16px;
-  padding-top: max(12px, env(safe-area-inset-top));
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-}
+    .container {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
 
-.day-header {
-  font-size: clamp(1.1rem, 4vw, 1.35rem);
-  letter-spacing: 1.5px;
-  color: #c9b8a0;
-  margin: 8px 0 14px;
-  opacity: 0.95;
-  text-align: center;
-  transition: opacity 0.4s ease;
-  flex-shrink: 0;
-  padding: 0 50px; /* tránh đè nút góc */
-}
+    .day-header {
+      font-size: clamp(1.05rem, 3.8vw, 1.3rem);
+      letter-spacing: 1.2px;
+      color: #c9b8a0;
+      margin: 8px 0 14px;
+      opacity: 0.95;
+      text-align: center;
+      transition: opacity 0.4s ease;
+      flex-shrink: 0;
+      padding: 0 56px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
 
-.diary {
-  flex: 1;
-  width: 100%;
-  max-width: 620px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 6px 12px 100px; /* để không bị nút che */
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.diary::-webkit-scrollbar {
-  display: none;
-}
+    .diary {
+      flex: 1;
+      width: 100%;
+      max-width: 620px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 6px 12px 100px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      position: relative;
+    }
+    .diary::-webkit-scrollbar {
+      display: none;
+    }
 
-.line {
-  font-size: clamp(0.98rem, 3.7vw, 1.12rem);
-  line-height: 1.85;
-  margin-bottom: 15px;
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
-}
-.line.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+    .line {
+      font-size: clamp(0.98rem, 3.7vw, 1.12rem);
+      line-height: 1.85;
+      margin-bottom: 15px;
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
-/* Highlight từ khóa */
-.highlight {
-    background-color: var(--hl-color);
-    padding: 1px 4px;
-    border-radius: 3px;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-}
+    /* Bôi nền giống bút highlight */
+    .highlight {
+      background-color: var(--hl-color);
+      padding: 1px 4px;
+      border-radius: 3px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
 
-/* Đánh dấu hết ngày */
-.end-marker {
-  text-align: center;
-  color: #555;
-  font-size: 0.9rem;
-  letter-spacing: 3px;
-  margin: 32px 0 20px;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-.end-marker.visible {
-  opacity: 0.8;
-}
+    .end-marker {
+      text-align: center;
+      color: #555;
+      font-size: 0.9rem;
+      letter-spacing: 3px;
+      margin: 32px 0 20px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .end-marker.visible {
+      opacity: 0.5;
+    }
 
-/* ===== Nút Prev / Next ===== */
-.side-btn {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 30;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(18, 18, 18, 0.85);
-  border: 1px solid #3a3a3a;
-  color: #c9b8a0;
-  font-size: 1.4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.2s;
-}
-.side-btn:active {
-  transform: translateY(-50%) scale(0.9);
-}
-#prevBtn {
-  left: max(10px, env(safe-area-inset-left));
-}
-#nextBtn {
-  right: max(10px, env(safe-area-inset-right));
-}
+    /* Loading nhỏ khi chuyển ngày */
+    .day-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 5, 5, 0.7);
+      color: #c9b8a0;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      z-index: 5;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .day-loading.show {
+      opacity: 1;
+      visibility: visible;
+    }
 
-/* ===== Nút góc trên phải ===== */
-.top-right {
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  right: max(12px, env(safe-area-inset-right));
-  z-index: 40;
-  display: flex;
-  gap: 8px;
-}
+    /* Nút Prev / Next */
+    .side-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 30;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(18, 18, 18, 0.88);
+      border: 1px solid #3a3a3a;
+      color: #c9b8a0;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.2s;
+    }
+    .side-btn:active {
+      transform: translateY(-50%) scale(0.9);
+    }
+    #prevBtn { left: max(10px, env(safe-area-inset-left)); }
+    #nextBtn { right: max(10px, env(safe-area-inset-right)); }
 
-.icon-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: rgba(18, 18, 18, 0.85);
-  border: 1px solid #3a3a3a;
-  color: #c9b8a0;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.2s;
-}
-.icon-btn:active {
-  transform: scale(0.9);
-}
+    /* Nút góc trên phải */
+    .top-right {
+      position: fixed;
+      top: max(10px, env(safe-area-inset-top));
+      right: max(10px, env(safe-area-inset-right));
+      z-index: 40;
+      display: flex;
+      gap: 8px;
+    }
 
-/* ===== Modal chọn ngày ===== */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 100;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-.modal-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
+    .icon-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(18, 18, 18, 0.88);
+      border: 1px solid #3a3a3a;
+      color: #c9b8a0;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.2s;
+    }
+    .icon-btn:active {
+      transform: scale(0.9);
+    }
 
-.modal {
-  background: #111;
-  width: 100%;
-  max-width: 500px;
-  max-height: 75vh;
-  border-radius: 18px 18px 0 0;
-  padding: 18px 14px 28px;
-  transform: translateY(100%);
-  transition: transform 0.35s ease;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.modal-overlay.active .modal {
-  transform: translateY(0);
-}
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
 
-.modal-title {
-  text-align: center;
-  color: #c9b8a0;
-  font-size: 1.05rem;
-  margin-bottom: 14px;
-  letter-spacing: 1px;
-}
+    .modal {
+      background: #111;
+      width: 100%;
+      max-width: 500px;
+      max-height: 75vh;
+      border-radius: 18px 18px 0 0;
+      padding: 18px 14px 28px;
+      transform: translateY(100%);
+      transition: transform 0.35s ease;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
 
-.day-item {
-  padding: 13px 14px;
-  border-radius: 10px;
-  color: #ddd;
-  font-size: 1rem;
-  margin-bottom: 5px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.day-item:active,
-.day-item.active {
-  background: rgba(255, 255, 255, 0.09);
-  color: #f0c8c8;
-}
+    .modal-title {
+      text-align: center;
+      color: #c9b8a0;
+      font-size: 1.05rem;
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+    }
 
-/* Ripple */
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 180, 180, 0.25);
-  transform: scale(0);
-  animation: rippleAnim 0.6s ease-out forwards;
-  pointer-events: none;
-  z-index: 5;
-}
-@keyframes rippleAnim {
-  to {
-    transform: scale(4.5);
-    opacity: 0;
-  }
-}
+    .day-item {
+      padding: 13px 14px;
+      border-radius: 10px;
+      color: #ddd;
+      font-size: 1rem;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .day-item:active,
+    .day-item.active {
+      background: rgba(255, 255, 255, 0.09);
+      color: #f0c8c8;
+    }
 
-.fade-out {
-  animation: fadeOut 0.3s ease forwards;
-}
-.fade-in {
-  animation: fadeIn 0.4s ease forwards;
-}
-@keyframes fadeOut {
-  to { opacity: 0; transform: translateY(8px); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 180, 180, 0.25);
+      transform: scale(0);
+      animation: rippleAnim 0.6s ease-out forwards;
+      pointer-events: none;
+      z-index: 5;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4.5); opacity: 0; }
+    }
 
-.loading {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #050505;
-  z-index: 200;
-  color: #c9b8a0;
-  font-size: 1.05rem;
-  letter-spacing: 2px;
-}
+    .fade-out { animation: fadeOut 0.3s ease forwards; }
+    .fade-in  { animation: fadeIn 0.4s ease forwards; }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(8px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* ===== Responsive mobile ===== */
-@media (max-width: 480px) {
-  .side-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.3rem;
-  }
-  .icon-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.05rem;
-  }
-  .day-header {
-    padding: 0 46px;
-    font-size: 1.05rem;
-  }
-  .diary {
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-bottom: 110px;
-  }
-}
+    .loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #050505;
+      z-index: 200;
+      color: #c9b8a0;
+      font-size: 1.05rem;
+      letter-spacing: 2px;
+    }
 
-@media (max-width: 360px) {
-  .side-btn {
-    width: 36px;
-    height: 36px;
-  }
-  #prevBtn { left: 6px; }
-  #nextBtn { right: 6px; }
-}
+    @media (max-width: 400px) {
+      .day-header {
+        padding: 0 52px;
+        font-size: 1rem;
+      }
+      .icon-btn {
+        width: 20px;
+        height: 20px;
+      }
+      .side-btn {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    @media (max-width: 350px) {
+      .day-header {
+        padding: 0 48px;
+        font-size: 0.95rem;
+      }
+      .icon-btn {
+        width: 20px;
+        height: 20px;
+      }
+    }

@@ -1,9 +1,12 @@
-let entries = [];
-let highlights = {};          // từ khóa + màu
+let fileList = [];           // danh sách tên file từ list.json
+let cache = {};              // cache nội dung đã load { index: { date, lines } }
 let currentIndex = 0;
+let highlights = {};
+let isLoadingDay = false;
 
 const diaryEl      = document.getElementById("diary");
 const dayHeader    = document.getElementById("dayHeader");
+const dayLoading   = document.getElementById("dayLoading");
 const prevBtn      = document.getElementById("prevBtn");
 const nextBtn      = document.getElementById("nextBtn");
 const musicBtn     = document.getElementById("musicBtn");
@@ -14,92 +17,92 @@ const loadingEl    = document.getElementById("loading");
 const bgMusic      = document.getElementById("bgMusic");
 let isMusicPlaying = false;
 
-// ========== Load highlights.json ==========
+// ====================== Highlight (bôi nền) ======================
 async function loadHighlights() {
     try {
     const res = await fetch("highlights.json");
-    if (res.ok) {
-        highlights = await res.json();
-    }
-    } catch (e) {
-    console.warn("Không load được highlights.json");
-    }
+    if (res.ok) highlights = await res.json();
+    } catch (e) {}
 }
 
-// ========== Highlight từ khóa ==========
 function applyHighlight(text) {
     if (!highlights || Object.keys(highlights).length === 0) return text;
 
     let result = text;
-    // Ưu tiên từ dài trước
     const words = Object.keys(highlights).sort((a, b) => b.length - a.length);
 
     words.forEach(word => {
-        const color = highlights[word];
-        const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
-        result = result.replace(regex, 
-        `<span class="highlight" style="--hl-color: ${color}40">$1</span>`
-        // thêm 40 = độ trong suốt ~25%
-        );
+    const color = highlights[word];
+    const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+    // Thêm độ trong suốt (40 ≈ 25%)
+    result = result.replace(regex, 
+        `<span class="highlight" style="--hl-color:${color}40">$1</span>`
+    );
     });
     return result;
 }
 
-// ========== Load list.json + nội dung ==========
-async function loadEntries() {
-    const listRes = await fetch("list.json");
-    if (!listRes.ok) throw new Error("Không tìm thấy list.json");
-
-    const fileList = await listRes.json();
-    const loaded = [];
-
-    for (const filename of fileList) {
-    const fullName = filename.endsWith(".txt") ? filename : filename + ".txt";
-
-    try {
-        const res = await fetch(fullName);
-        if (!res.ok) continue;
-
-        const text = await res.text();
-        const lines = text
-        .split(/\r?\n/)
-        .map(l => l.trim())
-        .filter(l => l.length > 0);
-
-        if (lines.length === 0) continue;
-
-        // Dòng đầu = tiêu đề
-        const date = lines[0];
-        const content = lines.slice(1);
-
-        loaded.push({
-        date,
-        filename: fullName,
-        lines: content
-        });
-    } catch (err) {
-        console.warn("Lỗi load:", fullName);
+// ====================== Parse tên file tạm (khi chưa load) ======================
+function parseTempTitle(filename) {
+    const base = filename.replace(/^.*[\\/]/, "").replace(/\.txt$/i, "");
+    if (/^\d{6}$/.test(base)) {
+    const yy = base.slice(0, 2);
+    const mm = base.slice(2, 4);
+    const dd = base.slice(4, 6);
+    return `${dd}/${mm}/20${yy}`;
     }
+    if (/^\d{7,}$/.test(base)) {
+    const last6 = base.slice(-6);
+    const yy = last6.slice(0, 2);
+    const mm = last6.slice(2, 4);
+    const dd = last6.slice(4, 6);
+    return `${dd}/${mm}/20${yy}`;
     }
-    return loaded;
+    return base;
 }
 
-// ========== Render ==========
-function renderEntry(index) {
-    if (!entries[index]) return;
-    const entry = entries[index];
+// ====================== Load 1 file ======================
+async function loadFile(index) {
+    if (cache[index]) return cache[index]; // đã có trong cache
 
-    dayHeader.textContent = entry.date;
-    diaryEl.innerHTML = "";
+    const fullName = fileList[index].endsWith(".txt") 
+    ? fileList[index] 
+    : fileList[index] + ".txt";
 
-    entry.lines.forEach(text => {
+    const res = await fetch(fullName);
+    if (!res.ok) throw new Error("Không tải được file");
+
+    const text = await res.text();
+    const lines = text
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+    if (lines.length === 0) throw new Error("File trống");
+
+    const data = {
+    date: lines[0],          // dòng đầu = tiêu đề
+    lines: lines.slice(1)    // phần còn lại
+    };
+
+    cache[index] = data;
+    return data;
+}
+
+// ====================== Render ======================
+function renderEntry(data) {
+    dayHeader.textContent = data.date;
+    // Xóa nội dung cũ (giữ lại loading overlay)
+    const oldLines = diaryEl.querySelectorAll(".line, .end-marker");
+    oldLines.forEach(el => el.remove());
+
+    data.lines.forEach(text => {
     const div = document.createElement("div");
     div.className = "line";
-    div.innerHTML = applyHighlight(text);   // áp dụng màu
+    div.innerHTML = applyHighlight(text);
     diaryEl.appendChild(div);
     });
 
-    // Đánh dấu hết
     const end = document.createElement("div");
     end.className = "end-marker";
     end.textContent = "— hết —";
@@ -123,23 +126,34 @@ function renderEntry(index) {
     }, 40);
 }
 
-// ========== Chuyển ngày ==========
-function changeDay(direction) {
-    const newIndex = currentIndex + direction;
-    if (newIndex < 0 || newIndex >= entries.length) return;
+// ====================== Chuyển ngày (có lazy load) ======================
+async function goToDay(index) {
+    if (index < 0 || index >= fileList.length || isLoadingDay) return;
+    if (index === currentIndex && cache[index]) return;
 
-    diaryEl.classList.add("fade-out");
-    dayHeader.style.opacity = "0";
+    isLoadingDay = true;
+    currentIndex = index;
 
-    setTimeout(() => {
-    currentIndex = newIndex;
-    renderEntry(currentIndex);
+    // Hiện loading nếu chưa có trong cache
+    if (!cache[index]) {
+    dayLoading.classList.add("show");
+    }
+
+    try {
+    const data = await loadFile(index);
+    renderEntry(data);
     updateDayListActive();
-    diaryEl.classList.remove("fade-out");
-    diaryEl.classList.add("fade-in");
-    dayHeader.style.opacity = "1";
-    setTimeout(() => diaryEl.classList.remove("fade-in"), 450);
-    }, 300);
+    } catch (err) {
+    dayHeader.textContent = "Lỗi tải ngày này";
+    console.error(err);
+    } finally {
+    dayLoading.classList.remove("show");
+    isLoadingDay = false;
+    }
+}
+
+function changeDay(direction) {
+    goToDay(currentIndex + direction);
 }
 
 prevBtn.addEventListener("click", (e) => {
@@ -151,21 +165,21 @@ nextBtn.addEventListener("click", (e) => {
     changeDay(1);
 });
 
-// ========== Modal ==========
+// ====================== Modal chọn ngày ======================
 function buildDayList() {
     dayListEl.innerHTML = "";
-    entries.forEach((entry, i) => {
+    fileList.forEach((filename, i) => {
     const item = document.createElement("div");
     item.className = "day-item" + (i === currentIndex ? " active" : "");
-    item.textContent = entry.date;
+
+    // Nếu đã load thì hiện tiêu đề thật, chưa thì hiện tạm từ tên file
+    const title = cache[i] ? cache[i].date : parseTempTitle(filename);
+    item.textContent = title;
+
     item.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (i !== currentIndex) {
-        currentIndex = i;
-        renderEntry(currentIndex);
-        updateDayListActive();
-        }
         closeModal();
+        goToDay(i);
     });
     dayListEl.appendChild(item);
     });
@@ -174,6 +188,8 @@ function buildDayList() {
 function updateDayListActive() {
     document.querySelectorAll(".day-item").forEach((el, i) => {
     el.classList.toggle("active", i === currentIndex);
+    // Cập nhật lại tiêu đề nếu vừa load xong
+    if (cache[i]) el.textContent = cache[i].date;
     });
 }
 
@@ -193,7 +209,7 @@ dayModal.addEventListener("click", (e) => {
     if (e.target === dayModal) closeModal();
 });
 
-// ========== Nhạc ==========
+// ====================== Nhạc ======================
 musicBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     if (!bgMusic.querySelector("source") && !bgMusic.src) {
@@ -210,7 +226,7 @@ musicBtn.addEventListener("click", (e) => {
     isMusicPlaying = !isMusicPlaying;
 });
 
-// ========== Canvas ==========
+// ====================== Canvas ======================
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let width, height;
@@ -280,7 +296,6 @@ class Particle {
 }
 
 for (let i = 0; i < 45; i++) particles.push(new Particle());
-
 setInterval(() => {
     if (hearts.length < 20) {
     hearts.push(new Heart(Math.random() * width, height + 15));
@@ -301,7 +316,7 @@ function animate() {
 }
 animate();
 
-// ========== Ripple ==========
+// ====================== Ripple ======================
 function createRipple(x, y) {
     const ripple = document.createElement("div");
     ripple.className = "ripple";
@@ -325,29 +340,33 @@ function createRipple(x, y) {
 }
 
 function handlePointer(e) {
-    // Không tạo ripple khi bấm nút hoặc trong modal
     if (e.target.closest("button") || e.target.closest(".modal") || e.target.closest(".top-right")) return;
-
     const x = e.clientX ?? e.touches?.[0]?.clientX;
     const y = e.clientY ?? e.touches?.[0]?.clientY;
     if (x != null) createRipple(x, y);
 }
-
 document.body.addEventListener("click", handlePointer);
 document.body.addEventListener("touchstart", handlePointer, { passive: true });
 
-// ========== Khởi động ==========
+// ====================== Khởi động ======================
 (async () => {
     try {
     await loadHighlights();
-    entries = await loadEntries();
 
-    if (entries.length === 0) {
-        loadingEl.textContent = "Không có nhật ký nào";
+    const listRes = await fetch("list.json");
+    if (!listRes.ok) throw new Error("Không tìm thấy list.json");
+    fileList = await listRes.json();
+
+    if (fileList.length === 0) {
+        loadingEl.textContent = "Danh sách trống";
         return;
     }
+
+    // Chỉ load file đầu tiên
+    const firstData = await loadFile(0);
     loadingEl.style.display = "none";
-    renderEntry(0);
+    renderEntry(firstData);
+
     } catch (err) {
     loadingEl.textContent = "Lỗi: " + err.message;
     }
