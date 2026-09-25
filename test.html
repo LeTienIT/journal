@@ -1,3 +1,454 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Nhật ký trong bóng tối</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #050505;
+      color: #e8e0d5;
+      font-family: "Georgia", "Times New Roman", serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    #canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ========== TRANG MẬT KHẨU ========== */
+    #passwordGate {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #passwordGate.hide {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .gate-heart {
+      width: 90px;
+      height: 90px;
+      margin-bottom: 40px;
+      position: relative;
+      animation: heartbeat 1.4s ease-in-out infinite;
+      transition: filter 0.6s ease, opacity 0.6s ease;
+    }
+    .gate-heart svg {
+      width: 100%;
+      height: 100%;
+      fill: #ff8a9a;
+      filter: drop-shadow(0 0 12px rgba(255, 140, 160, 0.6));
+      transition: fill 0.6s ease, filter 0.6s ease;
+    }
+    .gate-heart.darken svg {
+      fill: #5a3a40;
+      filter: drop-shadow(0 0 4px rgba(80, 40, 50, 0.3));
+    }
+    .gate-heart.very-dark svg {
+      fill: #2a1a1e;
+      filter: none;
+      opacity: 0.5;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      15% { transform: scale(1.12); }
+      30% { transform: scale(1); }
+      45% { transform: scale(1.08); }
+      60% { transform: scale(1); }
+    }
+
+    .gate-title {
+      color: #c9b8a0;
+      font-size: 1.1rem;
+      letter-spacing: 3px;
+      margin-bottom: 28px;
+      opacity: 0.85;
+    }
+
+    .password-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 280px;
+      padding: 0 20px;
+    }
+
+    #passwordInput {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(20, 20, 20, 0.75);
+      border: 1px solid #444;
+      border-radius: 30px;
+      color: #e8e0d5;
+      font-size: 1rem;
+      text-align: center;
+      letter-spacing: 2px;
+      outline: none;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: border-color 0.3s;
+    }
+    #passwordInput:focus {
+      border-color: #ff8a9a;
+    }
+    #passwordInput::placeholder {
+      color: #666;
+      letter-spacing: 1px;
+    }
+
+    #submitPass {
+      width: 100%;
+      padding: 13px;
+      background: rgba(255, 138, 154, 0.15);
+      border: 1px solid #ff8a9a;
+      border-radius: 30px;
+      color: #ff8a9a;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    #submitPass:active {
+      transform: scale(0.97);
+      background: rgba(255, 138, 154, 0.25);
+    }
+
+    .gate-hint {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #555;
+      letter-spacing: 1px;
+    }
+
+    /* ========== TRANG CHÍNH ========== */
+    #mainApp {
+      display: none;
+      height: 100%;
+      height: 100dvh;
+    }
+    #mainApp.show {
+      display: block;
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      height: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    .day-header {
+      font-size: clamp(1.05rem, 3.8vw, 1.3rem);
+      letter-spacing: 1.2px;
+      color: #c9b8a0;
+      margin: 8px 0 14px;
+      opacity: 0.95;
+      text-align: center;
+      transition: opacity 0.4s ease;
+      flex-shrink: 0;
+      padding: 0 56px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .diary {
+      flex: 1;
+      width: 100%;
+      max-width: 620px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 6px 12px 100px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      position: relative;
+    }
+    .diary::-webkit-scrollbar { display: none; }
+
+    .line {
+      font-size: clamp(0.98rem, 3.7vw, 1.12rem);
+      line-height: 1.85;
+      margin-bottom: 15px;
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .highlight {
+      background-color: var(--hl-color);
+      padding: 1px 4px;
+      border-radius: 3px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    .end-marker {
+      text-align: center;
+      color: #555;
+      font-size: 0.9rem;
+      letter-spacing: 3px;
+      margin: 32px 0 20px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .end-marker.visible { opacity: 0.5; }
+
+    .day-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 5, 5, 0.7);
+      color: #c9b8a0;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      z-index: 5;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s ease;
+    }
+    .day-loading.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .side-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 30;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(18, 18, 18, 0.88);
+      border: 1px solid #3a3a3a;
+      color: #c9b8a0;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.2s;
+    }
+    .side-btn:active { transform: translateY(-50%) scale(0.9); }
+    #prevBtn { left: max(10px, env(safe-area-inset-left)); }
+    #nextBtn { right: max(10px, env(safe-area-inset-right)); }
+
+    .top-right {
+      position: fixed;
+      top: max(10px, env(safe-area-inset-top));
+      right: max(10px, env(safe-area-inset-right));
+      z-index: 40;
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(18, 18, 18, 0.88);
+      border: 1px solid #3a3a3a;
+      color: #c9b8a0;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.2s;
+    }
+    .icon-btn:active { transform: scale(0.9); }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: #111;
+      width: 100%;
+      max-width: 500px;
+      max-height: 75vh;
+      border-radius: 18px 18px 0 0;
+      padding: 18px 14px 28px;
+      transform: translateY(100%);
+      transition: transform 0.35s ease;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .modal-overlay.active .modal { transform: translateY(0); }
+
+    .modal-title {
+      text-align: center;
+      color: #c9b8a0;
+      font-size: 1.05rem;
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+    }
+
+    .day-item {
+      padding: 13px 14px;
+      border-radius: 10px;
+      color: #ddd;
+      font-size: 1rem;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .day-item:active,
+    .day-item.active {
+      background: rgba(255, 255, 255, 0.09);
+      color: #f0c8c8;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 180, 180, 0.25);
+      transform: scale(0);
+      animation: rippleAnim 0.6s ease-out forwards;
+      pointer-events: none;
+      z-index: 5;
+    }
+    @keyframes rippleAnim {
+      to { transform: scale(4.5); opacity: 0; }
+    }
+
+    .fade-out { animation: fadeOut 0.3s ease forwards; }
+    .fade-in  { animation: fadeIn 0.4s ease forwards; }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(8px); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #050505;
+      z-index: 200;
+      color: #c9b8a0;
+      font-size: 1.05rem;
+      letter-spacing: 2px;
+    }
+
+    @media (max-width: 400px) {
+      .day-header { padding: 0 52px; font-size: 1rem; }
+      .icon-btn { width: 38px; height: 38px; }
+      .side-btn { width: 40px; height: 40px; }
+      .gate-heart { width: 80px; height: 80px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CANVAS nền chung -->
+  <canvas id="canvas"></canvas>
+
+  <!-- ========== TRANG MẬT KHẨU ========== -->
+  <div id="passwordGate">
+    <div class="gate-heart" id="gateHeart">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+    </div>
+    <div class="gate-title">NHẬT KÝ</div>
+    <div class="password-box">
+      <input type="password" id="passwordInput" placeholder="Nhập mật khẩu..." autocomplete="off" />
+      <button id="submitPass">Vào</button>
+    </div>
+    <div class="gate-hint">Chỉ dành cho người được phép đọc</div>
+  </div>
+
+  <!-- ========== TRANG CHÍNH ========== -->
+  <div id="mainApp">
+    <div class="top-right">
+      <button class="icon-btn" id="selectDayBtn" title="Chọn ngày">☰</button>
+      <button class="icon-btn" id="musicBtn" title="Nhạc">♪</button>
+    </div>
+
+    <button class="side-btn" id="prevBtn">‹</button>
+    <button class="side-btn" id="nextBtn">›</button>
+
+    <div class="container">
+      <div class="day-header" id="dayHeader">—</div>
+      <div class="diary" id="diary">
+        <div class="day-loading" id="dayLoading">Đang tải ngày này...</div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="dayModal">
+      <div class="modal">
+        <div class="modal-title">Chọn ngày</div>
+        <div id="dayList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading" style="display:none;">Đang tải nhật ký...</div>
+
+  <audio id="bgMusic" loop preload="auto">
+    <!-- <source src="music.mp3" type="audio/mpeg"> -->
+  </audio>
+
+  <script>
     // ====================== CẤU HÌNH MẬT KHẨU ======================
     // Đổi mật khẩu tại đây
     const CORRECT_PASSWORD = "becoi";   // ← đổi thành mật khẩu bạn muốn
@@ -358,3 +809,6 @@
 
     // Tự focus vào ô mật khẩu khi vào trang
     setTimeout(() => passwordInput.focus(), 300);
+  </script>
+</body>
+</html>

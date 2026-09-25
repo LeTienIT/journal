@@ -7,31 +7,48 @@
   <title>Nhật ký bé con</title>
 </head>
 <body>
-
-  <div class="loading" id="loading">Đang tải nhật ký...</div>
   <canvas id="canvas"></canvas>
 
-  <div class="top-right">
-    <button class="icon-btn" id="selectDayBtn" title="Chọn ngày">☰</button>
-    <button class="icon-btn" id="musicBtn" title="Nhạc">♪</button>
+  <div id="passwordGate">
+    <div class="gate-heart" id="gateHeart">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </svg>
+    </div>
+    <div class="gate-title">NHẬT KÝ</div>
+    <div class="password-box">
+      <input type="password" id="passwordInput" placeholder="Nhập mật khẩu..." autocomplete="off" />
+      <button id="submitPass">Vào</button>
+    </div>
+    <div class="gate-hint">Chỉ dành cho người được phép đọc</div>
   </div>
 
-  <button class="side-btn" id="prevBtn">‹</button>
-  <button class="side-btn" id="nextBtn">›</button>
+  <!-- ========== TRANG CHÍNH ========== -->
+  <div id="mainApp">
+    <div class="top-right">
+      <button class="icon-btn" id="selectDayBtn" title="Chọn ngày">☰</button>
+      <button class="icon-btn" id="musicBtn" title="Nhạc">♪</button>
+    </div>
 
-  <div class="container">
-    <div class="day-header" id="dayHeader">—</div>
-    <div class="diary" id="diary">
-      <div class="day-loading" id="dayLoading">Đang tải ngày này...</div>
+    <button class="side-btn" id="prevBtn">‹</button>
+    <button class="side-btn" id="nextBtn">›</button>
+
+    <div class="container">
+      <div class="day-header" id="dayHeader">—</div>
+      <div class="diary" id="diary">
+        <div class="day-loading" id="dayLoading">Đang tải ngày này...</div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="dayModal">
+      <div class="modal">
+        <div class="modal-title">Chọn ngày</div>
+        <div id="dayList"></div>
+      </div>
     </div>
   </div>
 
-  <div class="modal-overlay" id="dayModal">
-    <div class="modal">
-      <div class="modal-title">Chọn ngày</div>
-      <div id="dayList"></div>
-    </div>
-  </div>
+  <div class="loading" id="loading" style="display:none;">Đang tải nhật ký...</div>
 
   <audio id="bgMusic" loop preload="auto">
     <!-- <source src="music.mp3" type="audio/mpeg"> -->
