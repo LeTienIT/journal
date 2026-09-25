@@ -10,7 +10,6 @@
     let currentIndex = 0;
     let highlights = {};
     let isLoadingDay = false;
-    let isMusicPlaying = false;
 
     const passwordGate = document.getElementById("passwordGate");
     const gateHeart    = document.getElementById("gateHeart");
@@ -28,19 +27,17 @@
     const dayModal     = document.getElementById("dayModal");
     const dayListEl    = document.getElementById("dayList");
     const loadingEl    = document.getElementById("loading");
-    const bgMusic      = document.getElementById("bgMusic");
 
     // ====================== XỬ LÝ MẬT KHẨU ======================
     function checkPassword() {
       const input = passwordInput.value.trim();
 
       if (input === CORRECT_PASSWORD) {
-        // Đúng → vào trang chính
         passwordGate.classList.add("hide");
         setTimeout(() => {
           passwordGate.style.display = "none";
           mainApp.classList.add("show");
-          initMainApp(); // bắt đầu load nhật ký
+          initMainApp();
         }, 700);
       } else {
         // Sai → trái tim tối dần
@@ -201,7 +198,15 @@
     selectDayBtn.addEventListener("click", (e) => { e.stopPropagation(); openModal(); });
     dayModal.addEventListener("click", (e) => { if (e.target === dayModal) closeModal(); });
 
-    // Nhạc
+    
+    // ====================== PLAYLIST NHẠC ======================
+    let playlist = [];
+    let currentTrack = 0;
+    let isMusicPlaying = false;
+
+    const bgMusic = document.getElementById("bgMusic");
+    bgMusic.volume = 0.3;
+
     musicBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!bgMusic.querySelector("source") && !bgMusic.src) {
@@ -217,6 +222,64 @@
       }
       isMusicPlaying = !isMusicPlaying;
     });
+
+    async function loadPlaylist() {
+    try {
+        const res = await fetch("music.json");
+        if (res.ok) {
+            playlist = await res.json();
+        }
+    } catch (e) {
+        console.warn("Không load được music.json");
+    }
+    }
+
+    function playTrack(index) {
+    if (!playlist.length) return;
+
+    currentTrack = index % playlist.length;
+    const src = playlist[currentTrack];
+
+    bgMusic.src = src;
+    bgMusic.load();
+
+    bgMusic.play().then(() => {
+        isMusicPlaying = true;
+        musicBtn.textContent = "♫";
+    }).catch(() => {
+    });
+    }
+
+    // Khi hết bài → chuyển bài tiếp
+    bgMusic.addEventListener("ended", () => {
+    playTrack(currentTrack + 1);
+    });
+
+    // Nút bật/tắt nhạc
+    musicBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+
+    if (!playlist.length) {
+        alert("Chưa có danh sách nhạc (music.json)");
+        return;
+    }
+
+    if (isMusicPlaying) {
+        bgMusic.pause();
+        isMusicPlaying = false;
+        musicBtn.textContent = "♪";
+    } else {
+        // Nếu chưa có src thì phát bài đầu
+        if (!bgMusic.src || bgMusic.src === window.location.href) {
+        playTrack(0);
+        } else {
+        bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            musicBtn.textContent = "♫";
+        }).catch(() => {});
+        }
+    }
+});
 
     // ====================== CANVAS ======================
     const canvas = document.getElementById("canvas");
@@ -338,6 +401,7 @@
     async function initMainApp() {
       loadingEl.style.display = "flex";
       try {
+        await loadPlaylist();
         await loadHighlights();
         const listRes = await fetch("list.json");
         if (!listRes.ok) throw new Error("Không tìm thấy list.json");
@@ -351,6 +415,11 @@
         const firstData = await loadFile(0);
         loadingEl.style.display = "none";
         renderEntry(firstData);
+        setTimeout(() => {
+            if (playlist.length > 0) {
+                playTrack(0);
+            }
+        }, 800);
       } catch (err) {
         loadingEl.textContent = "Lỗi: " + err.message;
       }
@@ -358,3 +427,4 @@
 
     // Tự focus vào ô mật khẩu khi vào trang
     setTimeout(() => passwordInput.focus(), 300);
+    
