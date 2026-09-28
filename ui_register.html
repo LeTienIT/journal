@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khởi Tạo Hành Trình Tình Yêu - Register</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Confetti JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --pink-bright: #ff6b81;
+            --pink-soft: #ff8e9e;
+            --pink-bg: #fff0f3;
+            --purple-accent: #a29bfe;
+            --gold-light: #ffeaa7;
+            --card-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffe6ea 0%, #ffc0cb 50%, #e8c5ff 100%);
+            background-size: 300% 300%;
+            animation: gradientShift 10s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            color: #4a4a4a;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- BACKGROUND PARTICLES --- */
+        #heartCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* --- REGISTER CARD --- */
+        .reg-card {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 440px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 35px;
+            padding: 35px 28px;
+            box-shadow: 0 20px 50px rgba(255, 107, 129, 0.25), 0 0 20px rgba(255, 255, 255, 0.8);
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- MASCOT ANIMATION --- */
+        .mascot-container {
+            position: relative;
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 15px;
+        }
+
+        .mascot-heart {
+            font-size: 75px;
+            color: var(--pink-bright);
+            filter: drop-shadow(0 5px 15px rgba(255, 107, 129, 0.5));
+            animation: floatHeart 2s infinite alternate ease-in-out;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-8px) scale(1.08); }
+        }
+
+        .mascot-face {
+            position: absolute;
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .eyes-row {
+            display: flex;
+            gap: 14px;
+        }
+
+        .eye {
+            width: 7px; height: 9px;
+            background: #2d3436;
+            border-radius: 50%;
+            animation: blink 3.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .smile {
+            width: 10px; height: 5px;
+            border-bottom: 2px solid #2d3436;
+            border-radius: 0 0 10px 10px;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.6rem;
+            color: var(--pink-bright);
+            text-shadow: 0 2px 10px rgba(255, 107, 129, 0.3);
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #636e72;
+            margin-bottom: 20px;
+            min-height: 24px;
+            transition: all 0.3s ease;
+        }
+
+        /* --- PROGRESS BAR --- */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 107, 129, 0.15);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 33.33%;
+            background: linear-gradient(90deg, var(--pink-soft), var(--pink-bright));
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+
+        /* --- STEP WRAPPER --- */
+        .input-step-wrapper {
+            position: relative;
+            min-height: 185px;
+            overflow: hidden;
+        }
+
+        .step-box {
+            position: absolute;
+            width: 100%;
+            top: 0; left: 0;
+            opacity: 0;
+            transform: translateX(80px) scale(0.95);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .step-box.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: all;
+        }
+
+        .step-box.exit-left {
+            opacity: 0;
+            transform: translateX(-80px) scale(0.95);
+            pointer-events: none;
+        }
+
+        /* INPUT STYLES */
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .custom-input, .custom-select {
+            width: 100%;
+            padding: 14px 18px 14px 45px;
+            background: #ffffff;
+            border: 2px solid rgba(255, 107, 129, 0.25);
+            border-radius: 20px;
+            color: #2d3436;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input:focus, .custom-select:focus {
+            border-color: var(--pink-bright);
+            box-shadow: 0 0 15px rgba(255, 107, 129, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--pink-bright);
+            font-size: 1.1rem;
+        }
+
+        /* SELECT CUSTOM */
+        .custom-select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--pink-bright);
+            pointer-events: none;
+        }
+
+        /* BUTTONS */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 13px;
+            background: linear-gradient(45deg, var(--pink-bright), #e84393);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(255, 107, 129, 0.35);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(255, 107, 129, 0.5);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 107, 129, 0.3);
+            color: var(--pink-bright);
+            box-shadow: none;
+            flex: 0.4;
+        }
+
+        .back-btn:hover {
+            background: #fff;
+            color: var(--pink-bright);
+        }
+
+        /* FOOTER LINK */
+        .login-link {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #636e72;
+        }
+
+        .login-link a {
+            color: var(--pink-bright);
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- PREVIEW RESULT CARD --- */
+        .result-card {
+            display: none;
+            background: #fff;
+            border-radius: 25px;
+            padding: 25px;
+            border: 2px dashed var(--pink-soft);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: left;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-item {
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .result-item strong {
+            color: var(--pink-bright);
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas hạt đom đốm trái tim -->
+    <canvas id="heartCanvas"></canvas>
+
+    <!-- CARD ĐĂNG KÝ -->
+    <div class="reg-card" id="regCard">
+        
+        <!-- Mascot Trái Tim Tương Tác -->
+        <div class="mascot-container">
+            <i class="fa-solid fa-heart mascot-heart" id="mascotHeart"></i>
+            <div class="mascot-face">
+                <div class="eyes-row">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
+                </div>
+                <div class="smile"></div>
+            </div>
+        </div>
+
+        <h1 class="title">Love Passport</h1>
+        <p class="subtitle" id="subTitle">Khởi tạo hồ sơ Tình Yêu ngọt ngào ✨</p>
+
+        <!-- Thanh Tiến Trình -->
+        <div class="progress-bar-container" id="progressContainer">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- CÁC BƯỚC ĐĂNG KÝ (STEP FORM) -->
+        <div class="input-step-wrapper" id="stepWrapper">
+            
+            <!-- BƯỚC 1: Tên & Năm Sinh -->
+            <div class="step-box active" id="step1">
+                <div class="input-group">
+                    <i class="fa-solid fa-user-heart input-icon"></i>
+                    <input type="text" class="custom-input" id="nameInput" placeholder="Tên hoặc biệt danh dễ thương..." autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <i class="fa-solid fa-calendar-heart input-icon"></i>
+                    <select class="custom-select" id="birthYearSelect">
+                        <option value="" disabled selected>Chọn năm sinh của bạn...</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-arrow"></i>
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn" onclick="goToStep(2)">
+                        Tiếp theo <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BƯỚC 2: Câu Thổ Lộ / Lời Nhắn -->
+            <div class="step-box" id="step2">
+                <div class="input-group">
+                    <i class="fa-solid fa-comment-dots input-icon"></i>
+                    <input type="text" class="custom-input" id="quoteInput" placeholder="Một câu nhắn gửi người thương..." autocomplete="off">
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn back-btn" onclick="goToStep(1)">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button class="action-btn" onclick="goToStep(3)">
+                        Tiếp theo <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- BƯỚC 3: Slogan Tình Yêu -->
+            <div class="step-box" id="step3">
+                <div class="input-group">
+                    <i class="fa-solid fa-quote-left input-icon"></i>
+                    <input type="text" class="custom-input" id="sloganInput" placeholder="Slogan tình yêu (VD: Bên nhau trọn đời)..." autocomplete="off">
+                </div>
+                <div class="btn-group">
+                    <button class="action-btn back-btn" onclick="goToStep(2)">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button class="action-btn" onclick="completeRegistration()">
+                        Tạo Hồ Sơ <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- KẾT QUẢ THẺ TÌNH YÊU (SAU KHI HOÀN THÀNH) -->
+        <div class="result-card" id="resultCard">
+            <h3 style="text-align: center; color: var(--pink-bright); margin-bottom: 15px; font-family: 'Dancing Script', cursive; font-size: 1.8rem;">
+                💕 Thẻ Tình Yêu Của Bạn 💕
+            </h3>
+            <div class="result-item">
+                <strong>Chủ nhân:</strong>
+                <span id="resName" style="font-weight: 700; font-size: 1.1rem; color: #2d3436;">---</span>
+            </div>
+            <div class="result-item">
+                <strong>Năm sinh:</strong>
+                <span id="resYear">---</span>
+            </div>
+            <div class="result-item">
+                <strong>Lời nhắn gửi:</strong>
+                <span id="resQuote" style="font-style: italic;">"---"</span>
+            </div>
+            <div class="result-item">
+                <strong>Slogan Tình Yêu:</strong>
+                <span id="resSlogan" style="color: var(--pink-bright); font-weight: 700;">"---"</span>
+            </div>
+            <button class="action-btn" style="width: 100%; margin-top: 15px;" onclick="location.reload()">
+                <i class="fa-solid fa-rotate-right"></i> Tạo Hồ Sơ Khác
+            </button>
+        </div>
+
+        <p class="login-link" id="loginLink">
+            Đã có hồ sơ tình yêu? <a href="#">Đăng nhập ngay</a>
+        </p>
+
+    </div>
+
+    <script>
+        // --- 1. TỰ ĐỘNG TẠO OPTION NĂM SINH ---
+        const birthYearSelect = document.getElementById('birthYearSelect');
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear; year >= 1970; year--) {
+            const opt = document.createElement('option');
+            opt.value = year;
+            opt.innerText = `Năm ${year}`;
+            birthYearSelect.appendChild(opt);
+        }
+
+        // --- 2. HẠT DỰNG CẢNH BACKGROUND (CANVAS PARTICLES) ---
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class FloatingHeart {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 20;
+                this.size = Math.random() * 14 + 10;
+                this.speedY = Math.random() * 1.2 + 0.4;
+                this.speedX = Math.sin(Math.random() * Math.PI) * 0.6;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.color = `hsl(${Math.random() * 20 + 345}, 100%, 75%)`;
+            }
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                if (this.y < -20) this.reset();
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.font = `${this.size}px FontAwesome`;
+                ctx.fillText('💖', this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 30; i++) particles.push(new FloatingHeart());
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // --- 3. STEP MANAGEMENT & ANIMATIONS ---
+        let currentStep = 1;
+        const mascotHeart = document.getElementById('mascotHeart');
+        const subTitle = document.getElementById('subTitle');
+        const progressFill = document.getElementById('progressFill');
+
+        // Phản hồi Mascot khi gõ chữ
+        document.querySelectorAll('.custom-input').forEach(input => {
+            input.addEventListener('input', () => {
+                mascotHeart.style.transform = `scale(${1 + input.value.length * 0.015})`;
+            });
+        });
+
+        function goToStep(targetStep) {
+            // Validation đơn giản
+            if (currentStep === 1 && targetStep === 2) {
+                const name = document.getElementById('nameInput').value.trim();
+                const year = birthYearSelect.value;
+                if (!name || !year) {
+                    alert("Vui lòng nhập tên và chọn năm sinh nhé 💕");
+                    return;
+                }
+            }
+            if (currentStep === 2 && targetStep === 3) {
+                const quote = document.getElementById('quoteInput').value.trim();
+                if (!quote) {
+                    alert("Hãy gửi gắm một câu nói thương yêu nhé ✨");
+                    return;
+                }
+            }
+
+            // Chuyển animation giữa các bước
+            const currentBox = document.getElementById(`step${currentStep}`);
+            const targetBox = document.getElementById(`step${targetStep}`);
+
+            if (targetStep > currentStep) {
+                currentBox.classList.remove('active');
+                currentBox.classList.add('exit-left');
+            } else {
+                currentBox.classList.remove('active');
+            }
+
+            setTimeout(() => {
+                targetBox.classList.remove('exit-left');
+                targetBox.classList.add('active');
+            }, 200);
+
+            currentStep = targetStep;
+
+            // Cập nhật Subtitle & Thanh Tiến Trình
+            if (currentStep === 1) {
+                subTitle.innerText = "Khởi tạo hồ sơ Tình Yêu ngọt ngào ✨";
+                progressFill.style.width = "33.33%";
+            } else if (currentStep === 2) {
+                subTitle.innerText = "Gửi gắm một lời nhắn ngọt ngào 💌";
+                progressFill.style.width = "66.66%";
+            } else if (currentStep === 3) {
+                subTitle.innerText = "Tạo Slogan thương hiệu của riêng hai bạn 💕";
+                progressFill.style.width = "100%";
+            }
+        }
+
+        // --- 4. HOÀN TẤT ĐĂNG KÝ ---
+        function completeRegistration() {
+            const slogan = document.getElementById('sloganInput').value.trim();
+            if (!slogan) {
+                alert("Vui lòng nhập Slogan tình yêu nhé 💕");
+                return;
+            }
+
+            const name = document.getElementById('nameInput').value.trim();
+            const year = birthYearSelect.value;
+            const quote = document.getElementById('quoteInput').value.trim();
+
+            // Hiển thị pháo hoa Confetti
+            confetti({
+                particleCount: 180,
+                spread: 90,
+                origin: { y: 0.6 },
+                colors: ['#ff6b81', '#ff8e9e', '#ffeaa7', '#ffffff']
+            });
+
+            // Gán dữ liệu sang Thẻ Tình Yêu
+            document.getElementById('resName').innerText = name;
+            document.getElementById('resYear').innerText = `Năm ${year}`;
+            document.getElementById('resQuote').innerText = `"${quote}"`;
+            document.getElementById('resSlogan').innerText = `"${slogan}"`;
+
+            // Ẩn form bước & Hiển thị thẻ kết quả
+            document.getElementById('stepWrapper').style.display = 'none';
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('loginLink').style.display = 'none';
+            subTitle.innerText = "Chúc mừng bạn đã tạo Hồ Sơ Tình Yêu thành công!";
+            subTitle.style.color = "var(--pink-bright)";
+            subTitle.style.fontWeight = "bold";
+
+            document.getElementById('resultCard').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

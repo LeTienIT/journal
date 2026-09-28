@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Space - Nhật Ký Kỷ Niệm</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --pink-primary: #ff4757;
+            --pink-glow: #ff6b81;
+            --pink-soft: #ffafbd;
+            --purple-dark: #120c24;
+            --gold-glow: #ffd700;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #0b0717 0%, #1a0f2e 40%, #2c1233 70%, #170a24 100%);
+            background-size: 400% 400%;
+            animation: gradientBg 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- BACKGROUND PARTICLES --- */
+        .ambient-light {
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(255, 71, 87, 0.18) 0%, rgba(0,0,0,0) 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+            animation: ambientPulse 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes ambientPulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.8; }
+        }
+
+        /* --- NAVBAR --- */
+        .top-bar {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .brand-logo {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: var(--pink-soft);
+            text-shadow: 0 0 12px rgba(255, 175, 189, 0.5);
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .tab-switch {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 5px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            gap: 5px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .tab-btn.active {
+            background: var(--pink-primary);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        }
+
+        /* --- CONTAINER CHÍNH --- */
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            z-index: 5;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .view-section {
+            width: 100%;
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- SOẠN THẢO NHẬT KÝ --- */
+        .editor-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .editor-title-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255, 175, 189, 0.3);
+            color: #fff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            padding: 8px 0;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .editor-title-input:focus {
+            border-color: var(--pink-glow);
+        }
+
+        /* Toolbar Soạn Thảo */
+        .editor-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            align-items: center;
+        }
+
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'Quicksand', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 71, 87, 0.3);
+            color: var(--pink-soft);
+        }
+
+        .tool-btn-highlight {
+            background: linear-gradient(45deg, #ffd700, #ff7675);
+            color: #000;
+            font-weight: 700;
+        }
+
+        .tool-btn-highlight:hover {
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+            color: #000;
+        }
+
+        /* Area Nhập Nội Dung Editable */
+        .editor-content {
+            min-height: 220px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #eaeaea;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            outline: none;
+            overflow-y: auto;
+        }
+
+        .editor-content:empty:before {
+            content: "Nhập tâm tư, kỷ niệm ngọt ngào hôm nay... Bôi đen chữ bất kỳ và bấm 'Bôi sáng' để tạo điểm nhấn lung linh!";
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Lớp Highlight Dạ Quang */
+        .highlight-glow {
+            background: rgba(255, 215, 0, 0.25);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border-bottom: 2px solid var(--gold-glow);
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+            font-weight: 600;
+        }
+
+        /* Bảng chọn Mood & Quyền xem */
+        .editor-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .mood-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .mood-btn {
+            font-size: 1.4rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .mood-btn.selected, .mood-btn:hover {
+            opacity: 1;
+            transform: scale(1.3);
+        }
+
+        .save-btn {
+            background: linear-gradient(45deg, #ff4757, #e84393);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4);
+            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6);
+        }
+
+        /* --- XEM NHẬT KÝ ĐẶC BIỆT (MAGIC JOURNAL VIEW) --- */
+        .journal-book {
+            position: relative;
+            background: rgba(20, 12, 35, 0.85);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 175, 189, 0.25);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 71, 87, 0.15);
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .journal-book::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            width: 2px; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(255, 175, 189, 0.2), transparent);
+            pointer-events: none;
+        }
+
+        .journal-date {
+            font-size: 0.85rem;
+            color: var(--pink-soft);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .journal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.3rem;
+            color: #fff;
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .journal-body {
+            font-size: 1.25rem;
+            line-height: 2;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            flex: 1;
+        }
+
+        /* Chữ Highlight tỏa sáng lung linh ở chế độ đọc */
+        .journal-body .highlight-glow {
+            background: rgba(255, 215, 0, 0.2);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border-bottom: 2px solid var(--gold-glow);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            animation: glowPulse 2.5s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); box-shadow: 0 0 8px rgba(255, 215, 0, 0.3); }
+            100% { text-shadow: 0 0 18px rgba(255, 215, 0, 0.9); box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); }
+        }
+
+        .journal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .author-tag {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--pink-soft);
+            object-fit: cover;
+        }
+
+        .page-nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-arrow {
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            display: flex;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            background: var(--pink-primary);
+            box-shadow: 0 0 15px var(--pink-glow);
+            transform: scale(1.1);
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light"></div>
+
+    <!-- NAVBAR -->
+    <div class="top-bar">
+        <div class="brand-logo">
+            <i class="fa-solid fa-heart-pulse"></i> Love Space
+        </div>
+        <div class="tab-switch">
+            <button class="tab-btn active" onclick="switchTab('read')">
+                <i class="fa-solid fa-book-open"></i> Đọc Nhật Ký
+            </button>
+            <button class="tab-btn" onclick="switchTab('write')">
+                <i class="fa-solid fa-pen-nib"></i> Soạn Nhật Ký
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTAINER CHÍNH -->
+    <div class="container">
+        
+        <!-- SECTION 1: ĐỌC NHẬT KÝ LÃNG MẠN -->
+        <div class="view-section active" id="readSection">
+            <div class="journal-book" id="journalBook">
+                <div>
+                    <div class="journal-date">
+                        <i class="fa-solid fa-calendar-day"></i> <span id="viewDate">28 THÁNG 9, 2026</span>
+                        <span id="viewMood" style="margin-left: 10px; font-size: 1.2rem;">💖</span>
+                    </div>
+                    <h2 class="journal-title" id="viewTitle">Chiều thu bình yên bên em</h2>
+                    <div class="journal-body" id="viewBody">
+                        Hôm nay là một ngày thật đặc biệt. Khi cùng em dạo bước dưới cơn mưa thu nhẹ, anh chợt nhận ra rằng <span class="highlight-glow">chỉ cần có em bên cạnh</span>, mọi mệt mỏi đều tan biến. Cảm ơn em vì đã đến và làm cho <span class="highlight-glow">thế giới của anh tràn ngập ánh sáng</span>.
+                    </div>
+                </div>
+
+                <div class="journal-footer">
+                    <div class="author-tag">
+                        <img class="author-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar">
+                        <div>
+                            <strong style="display: block; font-size: 0.95rem;">Phương Thảo</strong>
+                            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.5);">Đã chia sẻ cho bạn</span>
+                        </div>
+                    </div>
+
+                    <div class="page-nav">
+                        <button class="nav-arrow" id="prevBtn" onclick="changePage(-1)"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="nav-arrow" id="nextBtn" onclick="changePage(1)"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: SOẠN THẢO NHẬT KÝ -->
+        <div class="view-section" id="writeSection">
+            <div class="editor-card">
+                <div class="editor-header">
+                    <input type="text" class="editor-title-input" id="inputTitle" placeholder="Tiêu đề nhật ký hôm nay...">
+                </div>
+
+                <!-- Toolbar công cụ -->
+                <div class="editor-toolbar">
+                    <button class="tool-btn tool-btn-highlight" onclick="applyHighlight()">
+                        <i class="fa-solid fa-highlighter"></i> Bôi sáng chữ
+                    </button>
+                    <button class="tool-btn" onclick="document.execCommand('bold', false, null)">
+                        <i class="fa-solid fa-bold"></i> In đậm
+                    </button>
+                    <button class="tool-btn" onclick="document.execCommand('italic', false, null)">
+                        <i class="fa-solid fa-italic"></i> In nghiêng
+                    </button>
+                </div>
+
+                <!-- Nội dung editable -->
+                <div class="editor-content" id="inputContent" contenteditable="true"></div>
+
+                <!-- Lựa chọn thêm -->
+                <div class="editor-options">
+                    <div class="mood-selector">
+                        <span style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">Cảm xúc:</span>
+                        <span class="mood-btn selected" onclick="selectMood(this, '💖')">💖</span>
+                        <span class="mood-btn" onclick="selectMood(this, '🌹')">🌹</span>
+                        <span class="mood-btn" onclick="selectMood(this, '✨')">✨</span>
+                        <span class="mood-btn" onclick="selectMood(this, '☕')">☕</span>
+                    </div>
+
+                    <button class="save-btn" onclick="saveDiary()">
+                        <i class="fa-solid fa-heart"></i> Lưu Kỷ Niệm
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Danh sách các bài nhật ký mẫu & dữ liệu người dùng tạo
+        const diaries = [
+            {
+                date: "28 THÁNG 9, 2026",
+                title: "Chiều thu bình yên bên em",
+                mood: "💖",
+                author: "Phương Thảo",
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+                content: `Hôm nay là một ngày thật đặc biệt. Khi cùng em dạo bước dưới cơn mưa thu nhẹ, anh chợt nhận ra rằng <span class="highlight-glow">chỉ cần có em bên cạnh</span>, mọi mệt mỏi đều tan biến. Cảm ơn em vì đã đến và làm cho <span class="highlight-glow">thế giới của anh tràn ngập ánh sáng</span>.`
+            },
+            {
+                date: "25 THÁNG 9, 2026",
+                title: "Chuyến đi ngắm hoàng hôn",
+                mood: "✨",
+                author: "Minh Quân",
+                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+                content: `Chúng ta đã ngồi bên bờ hồ, lặng nhìn mặt trời từ từ lặn xuống. Em hỏi anh về ước mơ tương lai, và anh trả lời rằng <span class="highlight-glow">ước mơ lớn nhất là cùng em đi đến cuối con đường</span>.`
+            }
+        ];
+
+        let currentIndex = 0;
+        let selectedMood = '💖';
+
+        // Chuyển tab
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+
+            if (tab === 'read') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('readSection').classList.add('active');
+                renderJournal();
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('writeSection').classList.add('active');
+            }
+        }
+
+        // Bôi sáng chữ
+        function applyHighlight() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount || selection.isCollapsed) {
+                alert("Vui lòng bôi đen đoạn văn bản bạn muốn bôi sáng!");
+                return;
+            }
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.className = 'highlight-glow';
+            range.surroundContents(span);
+        }
+
+        // Chọn Mood
+        function selectMood(el, mood) {
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedMood = mood;
+        }
+
+        // Lưu nhật ký mới
+        function saveDiary() {
+            const title = document.getElementById('inputTitle').value.trim();
+            const content = document.getElementById('inputContent').innerHTML.trim();
+
+            if (!title || !content) {
+                alert("Vui lòng nhập tiêu đề và nội dung nhật ký nhé!");
+                return;
+            }
+
+            const newDiary = {
+                date: new Date().toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase(),
+                title: title,
+                mood: selectedMood,
+                author: "Phương Thảo",
+                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+                content: content
+            };
+
+            diaries.unshift(newDiary);
+            currentIndex = 0;
+
+            // Bắn pháo hoa ăn mừng
+            confetti({
+                particleCount: 120,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff4757', '#ffd700', '#ffffff']
+            });
+
+            // Reset form & chuyển sang tab đọc
+            document.getElementById('inputTitle').value = '';
+            document.getElementById('inputContent').innerHTML = '';
+            switchTab('read');
+        }
+
+        // Hiển thị nội dung nhật ký ở chế độ đọc
+        function renderJournal() {
+            const item = diaries[currentIndex];
+            const book = document.getElementById('journalBook');
+
+            // Animation chuyển trang lật nhẹ
+            book.style.opacity = '0';
+            book.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                document.getElementById('viewDate').innerText = item.date;
+                document.getElementById('viewMood').innerText = item.mood;
+                document.getElementById('viewTitle').innerText = item.title;
+                document.getElementById('viewBody').innerHTML = item.content;
+
+                document.getElementById('prevBtn').disabled = currentIndex === 0;
+                document.getElementById('nextBtn').disabled = currentIndex === diaries.length - 1;
+
+                book.style.transition = 'all 0.4s ease';
+                book.style.opacity = '1';
+                book.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // Chuyển trang
+        function changePage(direction) {
+            currentIndex += direction;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= diaries.length) currentIndex = diaries.length - 1;
+            renderJournal();
+        }
+
+        // Khởi tạo
+        renderJournal();
+    </script>
+</body>
+</html>

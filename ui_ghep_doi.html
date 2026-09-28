@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Space - Lễ Ghép Đôi Kỷ Niệm</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Thư viện Canvas Confetti cho hiệu ứng pháo hoa -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --pink-primary: #ff4757;
+            --pink-glow: #ff6b81;
+            --pink-soft: #ffafbd;
+            --purple-dark: #120c24;
+            --text-color: #ffffff;
+            --subtext-color: rgba(255, 255, 255, 0.75);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --btn-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #0b0717 0%, #1a0f2e 40%, #2c1233 70%, #170a24 100%);
+            background-size: 300% 300%;
+            animation: gradientBg 15s ease infinite;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            transition: background 1.5s ease-in-out, color 0.8s ease;
+        }
+
+        /* Nền hồng tươi sáng lãng mạn khi ghép đôi thành công */
+        body.matched-theme {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #feada6 100%) !important;
+            animation: gradientBright 10s ease infinite !important;
+            --text-color: #2d3436;
+            --subtext-color: #57606f;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(255, 107, 129, 0.3);
+            --btn-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes gradientBright {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* */
+        /* --- NỀN LẤP LÁNH & TRÁI TIM BAY --- */
+        .ambient-light {
+            position: absolute;
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(255, 71, 87, 0.25) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+            animation: ambientPulse 6s ease-in-out infinite alternate;
+            transition: opacity 1s ease;
+        }
+
+        body.matched-theme .ambient-light {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%);
+        }
+
+        @keyframes ambientPulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.9; }
+        }
+
+        .floating-hearts {
+            position: absolute;
+            width: 100%; height: 100%; top: 0; left: 0;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute;
+            color: rgba(255, 107, 129, 0.35);
+            font-size: 1.2rem;
+            animation: floatUp 8s linear infinite;
+            bottom: -20px;
+        }
+
+        body.matched-theme .floating-heart {
+            color: rgba(255, 71, 87, 0.5);
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(-105vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- TOP BAR MENU --- */
+        .top-bar {
+            position: absolute; top: 20px; left: 0; width: 100%;
+            padding: 0 30px; display: flex; justify-content: space-between; align-items: center;
+            z-index: 5;
+        }
+
+        .brand-logo {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem; color: var(--pink-soft);
+            text-shadow: 0 0 12px rgba(255, 175, 189, 0.5);
+            display: flex; align-items: center; gap: 10px;
+            transition: color 0.5s ease;
+        }
+
+        body.matched-theme .brand-logo {
+            color: #d63031;
+            text-shadow: 0 2px 10px rgba(214, 48, 49, 0.2);
+        }
+
+        .user-nav-btn {
+            background: var(--btn-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color); padding: 8px 18px; border-radius: 20px;
+            font-size: 0.85rem; font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            cursor: pointer; backdrop-filter: blur(10px); transition: all 0.3s ease;
+        }
+
+        .user-nav-btn:hover {
+            background: rgba(255, 71, 87, 0.3); border-color: var(--pink-glow);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
+            color: #fff;
+        }
+
+        /* */
+        /* --- CARD CHÍNH --- */
+        .main-card {
+            position: relative; z-index: 3; text-align: center;
+            padding: 40px 30px; max-width: 480px; width: 90%;
+            background: var(--card-bg); backdrop-filter: blur(25px);
+            border: 1px solid var(--card-border); border-radius: 35px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            transition: all 0.8s ease;
+        }
+
+        .header h1 {
+            font-family: 'Dancing Script', cursive; font-size: 3.2rem;
+            background: linear-gradient(45deg, #ff7675, #d63031);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 0.95rem; color: var(--subtext-color);
+            line-height: 1.5; margin-bottom: 30px;
+            transition: color 0.8s ease;
+        }
+
+        /* --- TRÁI TIM SVG & LỒNG AVATAR --- */
+        .heart-match-area {
+            position: relative; width: 280px; height: 220px;
+            margin: 0 auto 25px; display: flex; justify-content: center; align-items: center;
+        }
+
+        .heart-svg { width: 100%; height: 100%; overflow: visible; }
+
+        .heart-half-path {
+            fill: rgba(255, 255, 255, 0.15); stroke: rgba(255, 255, 255, 0.3); stroke-width: 1.5px;
+            transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer; transform-box: fill-box;
+        }
+
+        body.matched-theme .heart-half-path {
+            fill: rgba(255, 255, 255, 0.4); stroke: rgba(255, 107, 129, 0.3);
+        }
+
+        /* Tách & ngả hai bên lúc chờ */
+        #pathLeft { transform-origin: bottom right; transform: translateX(-24px) rotate(-16deg); }
+        #pathRight { transform-origin: bottom left; transform: translateX(24px) rotate(16deg); }
+
+        .heart-half-path.active {
+            fill: url(#pink-glow-grad); stroke: var(--pink-soft);
+            filter: drop-shadow(0 0 20px rgba(255, 71, 87, 0.9)) brightness(1.2);
+        }
+
+        /* CONTAINER AVATAR ĐẶT NỔI TRÊN NỬA TRÁI TIM */
+        .avatar-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 4;
+        }
+
+        .avatar-box {
+            position: absolute; width: 62px; height: 62px; border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5); overflow: hidden;
+            background: #2a1b40; pointer-events: auto; cursor: pointer;
+            transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: grayscale(0.8) brightness(0.7);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Vị trí Avatar theo hai nửa */
+        #avatarLeft { top: 38px; left: 52px; transform: translateX(-24px) rotate(-16deg); }
+        #avatarRight { top: 38px; right: 52px; transform: translateX(24px) rotate(16deg); }
+
+        /* Khi nửa trái tim tương ứng SÁNG */
+        .avatar-box.active {
+            filter: grayscale(0) brightness(1.1);
+            border-color: #fff; box-shadow: 0 0 20px var(--pink-glow);
+        }
+
+        .change-avatar-icon {
+            position: absolute; bottom: 0; right: 0; width: 18px; height: 18px;
+            background: var(--pink-primary); border-radius: 50%; font-size: 10px;
+            display: flex; align-items: center; justify-content: center; color: #fff;
+        }
+
+        /* ANIMATION HỢP NHẤT HOÀN HẢO */
+        .heart-match-area.matched #pathLeft,
+        .heart-match-area.matched #pathRight {
+            transform: translateX(0px) rotate(0deg) !important;
+            fill: url(#pink-glow-grad); filter: drop-shadow(0 0 35px rgba(255, 71, 87, 1)) brightness(1.3);
+        }
+
+        .heart-match-area.matched #avatarLeft {
+            transform: translateX(14px) rotate(0deg) !important;
+            border-color: #fff; filter: grayscale(0) brightness(1.1); box-shadow: 0 0 25px var(--pink-glow);
+        }
+
+        .heart-match-area.matched #avatarRight {
+            transform: translateX(-14px) rotate(0deg) !important;
+            border-color: #fff; filter: grayscale(0) brightness(1.1); box-shadow: 0 0 25px var(--pink-glow);
+        }
+
+        .heart-match-area.matched {
+            animation: heartPulseUnified 0.8s infinite alternate ease-in-out 0.9s;
+        }
+
+        @keyframes heartPulseUnified {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* */
+        /* --- TRẠNG THÁI NỬA TRÁI / PHẢI --- */
+        .status-grid { display: flex; gap: 15px; justify-content: center; }
+
+        .status-card {
+            flex: 1; padding: 12px 15px; background: var(--btn-bg);
+            border: 1px solid var(--card-border); border-radius: 18px;
+            display: flex; align-items: center; gap: 10px; transition: all 0.4s ease;
+        }
+
+        .status-card.active {
+            background: rgba(255, 71, 87, 0.18); border-color: var(--pink-glow);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.25);
+        }
+
+        .status-avatar-mini {
+            width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .status-info { text-align: left; }
+        .status-info span { display: block; font-size: 0.75rem; color: var(--subtext-color); }
+        .status-info strong { font-size: 0.85rem; color: var(--text-color); font-weight: 700; }
+
+        /* MÀN HÌNH CHÚC MỪNG MỞ KHÓA */
+        .unlock-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 240, 243, 0.88); backdrop-filter: blur(20px);
+            z-index: 10; display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            animation: overlayFadeIn 0.8s ease forwards;
+        }
+
+        @keyframes overlayFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .unlock-content {
+            text-align: center; padding: 40px; max-width: 420px; width: 85%;
+            background: rgba(255, 255, 255, 0.95); border: 2px solid rgba(255, 107, 129, 0.3);
+            border-radius: 30px; box-shadow: 0 15px 40px rgba(255, 71, 87, 0.25);
+        }
+
+        .unlock-avatars { display: flex; justify-content: center; gap: -10px; margin-bottom: 15px; }
+        .unlock-avatars img {
+            width: 75px; height: 75px; border-radius: 50%; border: 3px solid #fff;
+            box-shadow: 0 0 20px var(--pink-glow); object-fit: cover;
+        }
+
+        .unlock-content h2 {
+            font-family: 'Dancing Script', cursive; font-size: 3rem;
+            color: var(--pink-primary); margin: 10px 0;
+        }
+
+        .enter-btn {
+            background: linear-gradient(45deg, #ff4757, #e84393); color: #fff;
+            border: none; padding: 14px 35px; border-radius: 30px;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4); transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .enter-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 71, 87, 0.6); }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-light"></div>
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <!-- Thanh Top Bar -->
+    <div class="top-bar">
+        <div class="brand-logo"><i class="fa-solid fa-heart-pulse"></i> Love Space</div>
+        <button class="user-nav-btn" onclick="alert('Trang nhật ký riêng cá nhân')">
+            <i class="fa-solid fa-book-bookmark"></i> Nhật ký riêng
+        </button>
+    </div>
+
+    <!-- -->
+    <!-- Container Ghép Đôi -->
+    <div class="main-card">
+        <div class="header">
+            <h1>Lễ Ghép Đôi</h1>
+            <p>Chạm vào nửa trái tim của bạn để cùng thắp sáng khoảnh khắc hợp nhất nhé!</p>
+        </div>
+
+        <!-- Khung Trái Tim & Avatar lồng bên trong -->
+        <div class="heart-match-area" id="heartMatchArea">
+            <svg class="heart-svg" viewBox="0 0 200 180">
+                <defs>
+                    <linearGradient id="pink-glow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff7675" />
+                        <stop offset="50%" stop-color="#ff4757" />
+                        <stop offset="100%" stop-color="#d63031" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Nửa Trái Tim Bên Trái -->
+                <path id="pathLeft" class="heart-half-path" 
+                      d="M 100,165 C 100,165 20,115 20,65 C 20,35 42,15 70,15 C 86,15 96,25 100,35 Z" 
+                      onclick="toggleHalf('left')" />
+
+                <!-- Nửa Trái Tim Bên Phải -->
+                <path id="pathRight" class="heart-half-path" 
+                      d="M 100,165 C 100,165 180,115 180,65 C 180,35 158,15 130,15 C 114,15 104,25 100,35 Z" 
+                      onclick="toggleHalf('right')" />
+            </svg>
+
+            <!-- Lớp Avatar Nổi -->
+            <div class="avatar-layer">
+                <div class="avatar-box" id="avatarLeft" onclick="toggleHalf('left')" title="Bấm để sáng nửa của Bạn">
+                    <img id="imgAvatarLeft" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar Bạn">
+                    <div class="change-avatar-icon" onclick="event.stopPropagation(); triggerUpload('left')"><i class="fa-solid fa-camera"></i></div>
+                </div>
+                <div class="avatar-box" id="avatarRight" onclick="toggleHalf('right')" title="Bấm để sáng nửa của Người ấy">
+                    <img id="imgAvatarRight" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="Avatar Người ấy">
+                    <div class="change-avatar-icon" onclick="event.stopPropagation(); triggerUpload('right')"><i class="fa-solid fa-camera"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input ẩn hỗ trợ đổi ảnh chụp thật -->
+        <input type="file" id="fileInputLeft" accept="image/*" style="display:none;" onchange="loadAvatar(event, 'left')">
+        <input type="file" id="fileInputRight" accept="image/*" style="display:none;" onchange="loadAvatar(event, 'right')">
+
+        <!-- Trạng Thái 2 Nửa -->
+        <div class="status-grid">
+            <div class="status-card" id="cardLeft">
+                <img id="miniLeft" class="status-avatar-mini" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Mini">
+                <div class="status-info">
+                    <span>Nửa Bên Trái</span>
+                    <strong id="textLeft">Chưa bật</strong>
+                </div>
+            </div>
+            <div class="status-card" id="cardRight">
+                <img id="miniRight" class="status-avatar-mini" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" alt="Mini">
+                <div class="status-info">
+                    <span>Nửa Bên Phải</span>
+                    <strong id="textRight">Chưa bật</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn Hình Mở Khóa Chúc Mừng -->
+    <div class="unlock-overlay" id="unlockOverlay">
+        <div class="unlock-content">
+            <div class="unlock-avatars">
+                <img id="unlockImgLeft" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" style="margin-right: -15px;">
+                <img id="unlockImgRight" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150">
+            </div>
+            <h2>Ghép Đôi Thành Công!</h2>
+            <p style="color: var(--subtext-color); line-height: 1.6;">
+                Hai trái tim đã hòa làm một. Hãy cùng khám phá không gian kỷ niệm chung ngọt ngào nhé!
+            </p>
+            <button class="enter-btn" onclick="location.reload()">
+                Khám Phá Love Space
+            </button>
+        </div>
+    </div>
+
+    <!-- -->
+    <script>
+        const state = { left: false, right: false };
+
+        function createFloatingHearts() {
+            const container = document.getElementById('floatingHearts');
+            const icons = ['fa-heart', 'fa-heart-pulse', 'fa-sparkles'];
+            for (let i = 0; i < 22; i++) {
+                const heart = document.createElement('i');
+                heart.className = `fa-solid ${icons[Math.floor(Math.random() * icons.length)]} floating-heart`;
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.animationDelay = `${Math.random() * 8}s`;
+                heart.style.animationDuration = `${6 + Math.random() * 6}s`;
+                heart.style.fontSize = `${0.8 + Math.random() * 1}rem`;
+                container.appendChild(heart);
+            }
+        }
+
+        function toggleHalf(side) {
+            state[side] = !state[side];
+            updateView();
+        }
+
+        function updateView() {
+            const pathLeft = document.getElementById('pathLeft');
+            const pathRight = document.getElementById('pathRight');
+            const avatarLeft = document.getElementById('avatarLeft');
+            const avatarRight = document.getElementById('avatarRight');
+            const cardLeft = document.getElementById('cardLeft');
+            const cardRight = document.getElementById('cardRight');
+            const area = document.getElementById('heartMatchArea');
+
+            // Cập nhật nửa trái
+            if (state.left) {
+                pathLeft.classList.add('active');
+                avatarLeft.classList.add('active');
+                cardLeft.classList.add('active');
+                document.getElementById('textLeft').innerText = "Đã thắp sáng ✨";
+            } else {
+                pathLeft.classList.remove('active');
+                avatarLeft.classList.remove('active');
+                cardLeft.classList.remove('active');
+                document.getElementById('textLeft').innerText = "Chưa bật";
+            }
+
+            // Cập nhật nửa phải
+            if (state.right) {
+                pathRight.classList.add('active');
+                avatarRight.classList.add('active');
+                cardRight.classList.add('active');
+                document.getElementById('textRight').innerText = "Đã thắp sáng ✨";
+            } else {
+                pathRight.classList.remove('active');
+                avatarRight.classList.remove('active');
+                cardRight.classList.remove('active');
+                document.getElementById('textRight').innerText = "Chưa bật";
+            }
+
+            // KHI CẢ HAI CÙNG SÁNG -> CHUYỂN NỀN HỒNG & HỢP NHẤT!
+            if (state.left && state.right) {
+                area.classList.add('matched');
+                
+                // Đổi nền toàn trang sang màu hồng tươi sáng
+                document.body.classList.add('matched-theme');
+
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 180,
+                        spread: 90,
+                        origin: { y: 0.6 },
+                        colors: ['#ff4757', '#ffafbd', '#ffffff', '#fdcb6e']
+                    });
+                }, 400);
+
+                setTimeout(() => {
+                    document.getElementById('unlockOverlay').style.display = 'flex';
+                }, 1800);
+            } else {
+                area.classList.remove('matched');
+                document.body.classList.remove('matched-theme');
+            }
+        }
+
+        function triggerUpload(side) {
+            if (side === 'left') document.getElementById('fileInputLeft').click();
+            else document.getElementById('fileInputRight').click();
+        }
+
+        function loadAvatar(event, side) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const src = e.target.result;
+                    if (side === 'left') {
+                        document.getElementById('imgAvatarLeft').src = src;
+                        document.getElementById('miniLeft').src = src;
+                        document.getElementById('unlockImgLeft').src = src;
+                    } else {
+                        document.getElementById('imgAvatarRight').src = src;
+                        document.getElementById('miniRight').src = src;
+                        document.getElementById('unlockImgRight').src = src;
+                    }
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        createFloatingHearts();
+    </script>
+</body>
+</html>

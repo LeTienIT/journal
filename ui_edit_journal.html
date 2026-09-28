@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Space - Nhật Ký Lãng Mạn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --pink-primary: #ff4757;
+            --pink-glow: #ff6b81;
+            --pink-soft: #ffafbd;
+            --gold-glow: #ffd700;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #0b0717 0%, #1a0f2e 40%, #2c1233 70%, #170a24 100%);
+            background-size: 400% 400%;
+            animation: gradientBg 15s ease infinite;
+            color: #fff; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        @keyframes gradientBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .top-bar {
+            width: 100%; max-width: 900px; padding: 20px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        }
+
+        .brand-logo {
+            font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: var(--pink-soft);
+            text-shadow: 0 0 12px rgba(255, 175, 189, 0.5);
+        }
+
+        .tab-switch {
+            background: rgba(255, 255, 255, 0.08); padding: 5px; border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15); display: flex; gap: 5px;
+        }
+
+        .tab-btn {
+            background: transparent; border: none; color: rgba(255, 255, 255, 0.7);
+            padding: 8px 18px; border-radius: 20px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--pink-primary); color: #fff; box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        }
+
+        .container { width: 100%; max-width: 850px; padding: 20px; flex: 1; }
+
+        .view-section { display: none; animation: fadeIn 0.4s ease forwards; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- XEM NHẬT KÝ VỚI THANH CUỘN LÃNG MẠN CHO BÀI CỰC DÀI --- */
+        .journal-book {
+            position: relative; background: rgba(20, 12, 35, 0.88);
+            backdrop-filter: blur(25px); border: 1px solid rgba(255, 175, 189, 0.25);
+            border-radius: 28px; padding: 40px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            height: 520px; display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        .journal-header { margin-bottom: 15px; }
+        .journal-date { font-size: 0.85rem; color: var(--pink-soft); letter-spacing: 2px; }
+        .journal-title { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #fff; margin-top: 5px; }
+
+        /* Vùng nội dung cực dài với hiệu ứng Fade mượt ở mép */
+        .journal-body-wrapper {
+            position: relative; flex: 1; overflow: hidden; margin: 10px 0;
+        }
+
+        .journal-body-scroll {
+            height: 100%; overflow-y: auto; padding-right: 15px;
+            font-size: 1.15rem; line-height: 1.9; color: rgba(255, 255, 255, 0.9);
+            user-select: text; /* Cho phép bôi đen copy khi đọc */
+        }
+
+        /* Custom Scrollbar Lãng Mạn */
+        .journal-body-scroll::-webkit-scrollbar { width: 6px; }
+        .journal-body-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        .journal-body-scroll::-webkit-scrollbar-thumb { background: var(--pink-glow); border-radius: 10px; box-shadow: 0 0 10px var(--pink-primary); }
+
+        /* Lớp Highlight Dạ Quang Tỏa Sáng */
+        .highlight-glow {
+            background: rgba(255, 215, 0, 0.2); color: #fff;
+            padding: 2px 6px; border-radius: 4px; border-bottom: 2px solid var(--gold-glow);
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+            100% { text-shadow: 0 0 15px rgba(255, 215, 0, 1); }
+        }
+
+        .journal-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- KHU VỰC SOẠN THẢO TRỰC QUAN --- */
+        .editor-card {
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 25px; padding: 30px;
+        }
+
+        .editor-title {
+            width: 100%; background: transparent; border: none;
+            border-bottom: 2px solid rgba(255, 175, 189, 0.3); color: #fff;
+            font-family: 'Playfair Display', serif; font-size: 1.8rem; padding: 8px 0;
+            outline: none; margin-bottom: 15px;
+        }
+
+        .editor-toolbar {
+            display: flex; gap: 10px; margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.2); padding: 8px 12px; border-radius: 10px;
+        }
+
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.1); border: none; color: #fff;
+            padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;
+        }
+
+        .tool-btn-glow {
+            background: linear-gradient(45deg, #ffd700, #ff7675); color: #000; font-weight: 700;
+        }
+
+        .editor-input {
+            min-height: 240px; max-height: 350px; overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.08); color: #fff; font-size: 1.05rem;
+            line-height: 1.8; outline: none; user-select: text;
+        }
+
+        .editor-input:empty:before {
+            content: "Nhập nhật ký của bạn... Dùng chuột/tay bôi đen chữ và bấm '✨ Bôi sáng' để tạo điểm nhấn!";
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .save-btn {
+            background: linear-gradient(45deg, #ff4757, #e84393); color: #fff;
+            border: none; padding: 12px 28px; border-radius: 25px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4); margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="brand-logo"><i class="fa-solid fa-heart-pulse"></i> Love Space</div>
+        <div class="tab-switch">
+            <button class="tab-btn active" onclick="switchTab('read')">Đọc Nhật Ký</button>
+            <button class="tab-btn" onclick="switchTab('write')">Soạn Nhật Ký</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- XEM NHẬT KÝ -->
+        <div class="view-section active" id="readSection">
+            <div class="journal-book">
+                <div class="journal-header">
+                    <div class="journal-date" id="viewDate">28 THÁNG 9, 2026 • 💖</div>
+                    <h2 class="journal-title" id="viewTitle">Chuyến đi dài và những kỷ niệm không quên</h2>
+                </div>
+
+                <div class="journal-body-wrapper">
+                    <div class="journal-body-scroll" id="viewBody">
+                        <!-- Nội dung nhật ký dài tự động cuộn mượt -->
+                    </div>
+                </div>
+
+                <div class="journal-footer">
+                    <span style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">Tác giả: <strong>Phương Thảo</strong></span>
+                    <div>
+                        <button class="tool-btn" onclick="nextJournal(-1)"><i class="fa-solid fa-chevron-left"></i> Bài trước</button>
+                        <button class="tool-btn" onclick="nextJournal(1)">Bài sau <i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOẠN NHẬT KÝ -->
+        <div class="view-section" id="writeSection">
+            <div class="editor-card">
+                <input type="text" class="editor-title" id="inputTitle" placeholder="Tiêu đề nhật ký...">
+
+                <div class="editor-toolbar">
+                    <button class="tool-btn tool-btn-glow" onclick="applyUserHighlight()">✨ Bôi sáng chữ</button>
+                    <button class="tool-btn" onclick="document.execCommand('bold', false, null)"><b>B</b> In đậm</button>
+                    <button class="tool-btn" onclick="document.execCommand('italic', false, null)"><i>I</i> Nghiêng</button>
+                </div>
+
+                <!-- Ô soạn thảo hỗ trợ bôi đen & bôi sáng trực tiếp -->
+                <div class="editor-input" id="inputContent" contenteditable="true"></div>
+
+                <button class="save-btn" onclick="saveNewDiary()"><i class="fa-solid fa-heart"></i> Lưu Bài Viết</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const listDiaries = [
+            {
+                date: "28 THÁNG 9, 2026 • 💖",
+                title: "Chuyến đi dài và những kỷ niệm không quên",
+                content: `Hôm nay là một ngày rất dài nhưng ngập tràn niềm vui. Chúng ta đã cùng nhau đi qua rất nhiều con phố, ghé thăm những quán cà phê nhỏ nằm sâu trong ngõ vắng.<br><br>
+                Anh vẫn nhớ như in khoảnh khắc em mỉm cười khi nhìn thấy những giọt mưa đầu mùa rơi trên hiên cửa. <span class="highlight-glow">Khoảnh khắc ấy làm trái tim anh xao xuyến</span> hơn bất kỳ điều gì trên thế giới này.<br><br>
+                Dù đường đời sau này có dài và nhiều thử thách đến đâu, anh chỉ mong chúng ta luôn giữ vững niềm tin dành cho nhau. <span class="highlight-glow">Cảm ơn em vì đã là một phần thanh xuân rực rỡ nhất của anh!</span>`
+            }
+        ];
+
+        let currentIndex = 0;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+            if (tab === 'read') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('readSection').classList.add('active');
+                renderReadView();
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('writeSection').classList.add('active');
+            }
+        }
+
+        // KỸ THUẬT BÔI SÁNG TỰ ĐỘNG KHI NGƯỜI DÙNG BÔI ĐEN VĂN BẢN
+        function applyUserHighlight() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount || selection.isCollapsed) {
+                alert("Bạn hãy dùng chuột hoặc tay bôi đen đoạn chữ muốn bôi sáng trước nhé!");
+                return;
+            }
+            const range = selection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.className = 'highlight-glow';
+            range.surroundContents(span);
+        }
+
+        function saveNewDiary() {
+            const title = document.getElementById('inputTitle').value.trim();
+            const content = document.getElementById('inputContent').innerHTML.trim();
+
+            if (!title || !content) {
+                alert("Vui lòng điền đủ tiêu đề và nội dung nhật ký nhé!");
+                return;
+            }
+
+            listDiaries.unshift({
+                date: new Date().toLocaleDateString('vi-VN') + " • ✨",
+                title: title,
+                content: content
+            });
+
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+            document.getElementById('inputTitle').value = '';
+            document.getElementById('inputContent').innerHTML = '';
+            currentIndex = 0;
+            switchTab('read');
+        }
+
+        function renderReadView() {
+            const data = listDiaries[currentIndex];
+            document.getElementById('viewDate').innerText = data.date;
+            document.getElementById('viewTitle').innerText = data.title;
+            document.getElementById('viewBody').innerHTML = data.content;
+        }
+
+        function nextJournal(dir) {
+            currentIndex += dir;
+            if (currentIndex < 0) currentIndex = 0;
+            if (currentIndex >= listDiaries.length) currentIndex = listDiaries.length - 1;
+            renderReadView();
+        }
+
+        renderReadView();
+    </script>
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhật Ký Tình Yêu - Our Love Story</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        love: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    },
+                    fontFamily: {
+                        cursive: ['"Dancing Script"', 'cursive'],
+                        sans: ['"Nunito"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffe4e6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fda4af;
+            border-radius: 10px;
+        }
+        
+        /* Floating hearts background animation */
+        .heart-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp 8s linear infinite;
+            opacity: 0.6;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0.3) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            80% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* Pulse heartbeat animation */
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+        .animate-heartbeat {
+            animation: heartbeat 1.3s infinite ease-in-out;
+        }
+
+        /* Flip card styling for Coupons */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-rose-100 via-purple-100 to-pink-200 font-sans min-h-screen pb-24 md:pb-12 text-gray-800 relative overflow-x-hidden selection:bg-rose-200">
+
+    <div id="heartContainer"></div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="max-w-4xl mx-auto px-4 py-6 relative z-10 space-y-8">
+        
+        <!-- HEADER & APP TITLE -->
+        <header class="text-center space-y-2">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur shadow-sm text-rose-500 font-semibold text-sm">
+                <i class="fa-solid fa-heart animate-pulse"></i>
+                <span>Góc Nhỏ Kỷ Niệm Của Chúng Mình</span>
+                <i class="fa-solid fa-heart animate-pulse"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold font-cursive text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-pink-600 to-purple-600 drop-shadow-sm">
+                Minh & Hoài
+            </h1>
+        </header>
+
+        <!-- 1. LOVE COUNTER SECTION -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border border-white/60 text-center relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 w-32 h-32 bg-rose-300/30 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-300/30 rounded-full blur-2xl"></div>
+
+            <div class="flex items-center justify-center gap-4 md:gap-12 my-4">
+                <!-- Person 1 -->
+                <div class="flex flex-col items-center group">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80" 
+                             alt="Hoài" 
+                             class="w-20 h-20 md:w-28 md:h-28 rounded-full object-cover border-4 border-white shadow-md transform group-hover:scale-105 transition duration-300"
+                             onerror="this.src='https://placehold.co/120x120/f43f5e/ffffff?text=Em'">
+                        <span class="absolute bottom-0 right-0 bg-pink-500 text-white p-1.5 rounded-full text-xs shadow-md">
+                            <i class="fa-solid fa-venus"></i>
+                        </span>
+                    </div>
+                    <span class="mt-2 font-bold text-gray-700 md:text-lg">Thu Hoài</span>
+                </div>
+
+                <!-- Heart Icon Beats -->
+                <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-tr from-rose-500 to-pink-400 flex items-center justify-center shadow-lg shadow-rose-300 text-white text-xl md:text-2xl animate-heartbeat">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-rose-500 mt-2 tracking-wider uppercase">Love Forever</span>
+                </div>
+
+                <!-- Person 2 -->
+                <div class="flex flex-col items-center group">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=300&auto=format&fit=crop&q=80" 
+                             alt="Minh" 
+                             class="w-20 h-20 md:w-28 md:h-28 rounded-full object-cover border-4 border-white shadow-md transform group-hover:scale-105 transition duration-300"
+                             onerror="this.src='https://placehold.co/120x120/3b82f6/ffffff?text=Anh'">
+                        <span class="absolute bottom-0 right-0 bg-blue-500 text-white p-1.5 rounded-full text-xs shadow-md">
+                            <i class="fa-solid fa-mars"></i>
+                        </span>
+                    </div>
+                    <span class="mt-2 font-bold text-gray-700 md:text-lg">Thế Minh</span>
+                </div>
+            </div>
+
+            <!-- Timer Grid -->
+            <div class="mt-6">
+                <p class="text-xs md:text-sm text-gray-500 font-medium mb-3">Chúng mình đã bên nhau được:</p>
+                <div class="grid grid-cols-4 gap-2 md:gap-4 max-w-lg mx-auto">
+                    <div class="bg-white/80 p-3 rounded-2xl shadow-sm border border-rose-100">
+                        <div id="days" class="text-2xl md:text-4xl font-extrabold text-rose-500">000</div>
+                        <div class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Ngày</div>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-2xl shadow-sm border border-rose-100">
+                        <div id="hours" class="text-2xl md:text-4xl font-extrabold text-pink-500">00</div>
+                        <div class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Giờ</div>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-2xl shadow-sm border border-rose-100">
+                        <div id="minutes" class="text-2xl md:text-4xl font-extrabold text-purple-500">00</div>
+                        <div class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Phút</div>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-2xl shadow-sm border border-rose-100">
+                        <div id="seconds" class="text-2xl md:text-4xl font-extrabold text-rose-400">00</div>
+                        <div class="text-[10px] md:text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Giây</div>
+                    </div>
+                </div>
+                <p class="text-xs text-rose-400 mt-3 font-medium">Bắt đầu từ ngày: <span class="font-bold">20/10/2023</span> 💕</p>
+            </div>
+        </section>
+
+        <!-- 2. MOOD TRACKER SECTION -->
+        <section class="glass-card rounded-3xl p-6 shadow-xl border border-white/60">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-face-smile text-amber-500"></i>
+                    <span>Tâm trạng hôm nay của em?</span>
+                </h2>
+                <span id="currentMoodBadge" class="text-xs bg-rose-100 text-rose-600 font-bold px-3 py-1 rounded-full">
+                    Chưa cập nhật
+                </span>
+            </div>
+
+            <div class="grid grid-cols-5 gap-2 md:gap-4 text-center">
+                <button onclick="setMood('Vui vẻ 🥰', '🥰', 'Hôm nay công việc trôi chảy, tâm trạng rất tốt!')" 
+                        class="mood-btn flex flex-col items-center p-3 rounded-2xl bg-white/60 hover:bg-rose-100 hover:scale-105 transition shadow-sm border border-gray-100">
+                    <span class="text-2xl md:text-3xl">🥰</span>
+                    <span class="text-[11px] md:text-xs font-semibold text-gray-600 mt-1">Vui vẻ</span>
+                </button>
+                <button onclick="setMood('Nhớ Anh 🥺', '🥺', 'Rất nhớ anh, muốn gặp ngay lập tức!')" 
+                        class="mood-btn flex flex-col items-center p-3 rounded-2xl bg-white/60 hover:bg-rose-100 hover:scale-105 transition shadow-sm border border-gray-100">
+                    <span class="text-2xl md:text-3xl">🥺</span>
+                    <span class="text-[11px] md:text-xs font-semibold text-gray-600 mt-1">Nhớ anh</span>
+                </button>
+                <button onclick="setMood('Thèm ăn 🍧', '🍧', 'Đang thèm trà sữa boba và gà rán cực kỳ!')" 
+                        class="mood-btn flex flex-col items-center p-3 rounded-2xl bg-white/60 hover:bg-rose-100 hover:scale-105 transition shadow-sm border border-gray-100">
+                    <span class="text-2xl md:text-3xl">🍧</span>
+                    <span class="text-[11px] md:text-xs font-semibold text-gray-600 mt-1">Thèm ăn</span>
+                </button>
+                <button onclick="setMood('Mệt mỏi 🥱', '🥱', 'Hôm nay đi học/đi làm hơi mệt, cần ôm!')" 
+                        class="mood-btn flex flex-col items-center p-3 rounded-2xl bg-white/60 hover:bg-rose-100 hover:scale-105 transition shadow-sm border border-gray-100">
+                    <span class="text-2xl md:text-3xl">🥱</span>
+                    <span class="text-[11px] md:text-xs font-semibold text-gray-600 mt-1">Hơi mệt</span>
+                </button>
+                <button onclick="setMood('Giận nhẹ 😤', '😤', 'Đang hơi dỗi đấy nhé, mau dỗ đi!')" 
+                        class="mood-btn flex flex-col items-center p-3 rounded-2xl bg-white/60 hover:bg-rose-100 hover:scale-105 transition shadow-sm border border-gray-100">
+                    <span class="text-2xl md:text-3xl">😤</span>
+                    <span class="text-[11px] md:text-xs font-semibold text-gray-600 mt-1">Giận hường</span>
+                </button>
+            </div>
+            
+            <div id="moodStatusDetail" class="hidden mt-4 p-3 bg-rose-50/80 rounded-xl text-xs md:text-sm text-gray-700 border border-rose-100 flex items-center gap-2">
+                <i class="fa-solid fa-quote-left text-rose-400"></i>
+                <span id="moodDetailText"></span>
+            </div>
+        </section>
+
+        <!-- 3. INTERACTIVE FEATURES: SECRET NOTE & LOVE COUPONS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Secret Note Box -->
+            <section class="glass-card rounded-3xl p-6 shadow-xl border border-white/60 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-envelope-open-text text-pink-500"></i>
+                        <span>Hộp Thư Bí Mật</span>
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-4">Một thông điệp ngọt ngào dành riêng cho em hôm nay...</p>
+                </div>
+
+                <div class="bg-gradient-to-r from-pink-50 to-rose-50 p-4 rounded-2xl border border-pink-200 text-center space-y-3">
+                    <div id="secretNoteContent" class="text-sm font-semibold text-gray-700 italic min-h-[48px] flex items-center justify-center">
+                        "Bấm nút bên dưới để mở thư secret hôm nay nhé baby! 💌"
+                    </div>
+                    <button onclick="openSecretNote()" 
+                            class="w-full py-2.5 px-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-xs md:text-sm rounded-xl shadow-md shadow-rose-200 active:scale-95 transition">
+                        <i class="fa-solid fa-key mr-1.5"></i> Mở Lời Nhắn Bí Mật
+                    </button>
+                </div>
+            </section>
+
+            <!-- Love Coupons -->
+            <section class="glass-card rounded-3xl p-6 shadow-xl border border-white/60 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-ticket text-purple-500"></i>
+                        <span>Rút Thẻ Bài Yêu Thương</span>
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-4">Em có thể dùng thẻ này để "bắt nạt" anh bất cứ lúc nào!</p>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-2xl border border-purple-200 text-center space-y-3">
+                    <div id="couponResult" class="text-sm font-bold text-purple-700 min-h-[48px] flex items-center justify-center">
+                        "Rút 1 thẻ bài ngẫu nhiên nào! 🎟️"
+                    </div>
+                    <button onclick="drawCoupon()" 
+                            class="w-full py-2.5 px-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold text-xs md:text-sm rounded-xl shadow-md shadow-purple-200 active:scale-95 transition">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Rút Thẻ May Mắn
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- 4. LOVE TIMELINE / DIARY -->
+        <section class="glass-card rounded-3xl p-6 md:p-8 shadow-xl border border-white/60 space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-rose-500"></i>
+                        <span>Nhật Ký Kỷ Niệm</span>
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-0.5">Những khoảnh khắc đẹp chúng mình ghi lại cùng nhau</p>
+                </div>
+                <!-- Add New Entry Button -->
+                <button onclick="toggleModal(true)" 
+                        class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs md:text-sm rounded-2xl shadow-lg shadow-rose-200 flex items-center gap-1.5 active:scale-95 transition">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden sm:inline">Viết nhật ký</span>
+                </button>
+            </div>
+
+            <!-- Timeline List -->
+            <div id="diaryFeed" class="space-y-6 relative before:absolute before:inset-0 before:left-4 md:before:left-1/2 before:-ml-px before:w-0.5 before:bg-rose-200">
+                <!-- Timeline items injected via Javascript -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- AUDIO MUSIC PLAYER BAR (Fixed Bottom) -->
+    <div class="fixed bottom-3 left-1/2 -translate-x-1/2 w-[92%] max-w-lg z-40 bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-3 border border-rose-100 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div id="musicDisk" class="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-400 to-pink-500 flex items-center justify-center text-white shrink-0 shadow-md">
+                <i class="fa-solid fa-music text-sm"></i>
+            </div>
+            <div class="truncate">
+                <p id="songTitle" class="text-xs font-bold text-gray-800 truncate">Perfect - Ed Sheeran</p>
+                <p class="text-[10px] text-gray-400">Nhạc nền kỷ niệm</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="togglePlayMusic()" id="playBtn" class="w-9 h-9 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition">
+                <i class="fa-solid fa-play text-xs"></i>
+            </button>
+            <button onclick="nextSong()" class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 active:scale-95 transition">
+                <i class="fa-solid fa-forward text-xs"></i>
+            </button>
+        </div>
+        <!-- Audio Element (Dummy Royalty Free Relaxing Music) -->
+        <audio id="bgMusic" loop>
+            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- MODAL FOR ADDING NEW DIARY -->
+    <div id="addModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-rose-100 transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-nib text-rose-500"></i>
+                    <span>Viết Kỷ Niệm Mới</span>
+                </h3>
+                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-gray-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="diaryForm" onsubmit="handleAddDiary(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Tiêu đề kỷ niệm</label>
+                    <input type="text" id="entryTitle" required placeholder="Ví dụ: Chuyến đi biển đầu tiên..." 
+                           class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs md:text-sm focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Ngày diễn ra</label>
+                        <input type="date" id="entryDate" required 
+                               class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-rose-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">Tag cảm xúc</label>
+                        <select id="entryTag" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-rose-400">
+                            <option value="Hạnh phúc 💕">Hạnh phúc 💕</option>
+                            <option value="Du lịch ✈️">Du lịch ✈️</option>
+                            <option value="Kỷ niệm 🎁">Kỷ niệm 🎁</option>
+                            <option value="Ăn uống 🍕">Ăn uống 🍕</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Link Ảnh minh họa (Không bắt buộc)</label>
+                    <input type="url" id="entryImage" placeholder="https://..." 
+                           class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-rose-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1">Nội dung nhật ký</label>
+                    <textarea id="entryContent" rows="4" required placeholder="Hôm nay hai đứa đã cùng nhau làm gì..." 
+                              class="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs md:text-sm focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400"></textarea>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="toggleModal(false)" 
+                            class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-xs transition">
+                        Hủy
+                    </button>
+                    <button type="submit" 
+                            class="w-1/2 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold text-xs shadow-md shadow-rose-200 transition">
+                        Lưu kỷ niệm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // -------------------------------------------------------------
+        // 1. LOVE TIMER REAL-TIME CALCULATOR
+        // -------------------------------------------------------------
+        const startDate = new Date("2023-10-20T00:00:00"); // Ngày bắt đầu yêu
+
+        function updateLoveCounter() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('days').innerText = days < 100 ? (days < 10 ? '00' + days : '0' + days) : days;
+            document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+            document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+        }
+        setInterval(updateLoveCounter, 1000);
+        updateLoveCounter();
+
+        // -------------------------------------------------------------
+        // 2. FLOATING HEARTS GENERATOR
+        // -------------------------------------------------------------
+        function createHeartParticle() {
+            const container = document.getElementById('heartContainer');
+            const heart = document.createElement('div');
+            heart.classList.add('heart-particle');
+            
+            const icons = ['❤️', '💖', '🌸', '✨', '💕', '🧸'];
+            heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+            
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            heart.style.fontSize = (Math.random() * 12 + 12) + 'px';
+
+            container.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 10000);
+        }
+        setInterval(createHeartParticle, 800);
+
+        // -------------------------------------------------------------
+        // 3. MOOD TRACKER LOGIC
+        // -------------------------------------------------------------
+        function setMood(moodText, emoji, detail) {
+            const badge = document.getElementById('currentMoodBadge');
+            badge.innerText = moodText;
+            
+            const detailBox = document.getElementById('moodStatusDetail');
+            const detailText = document.getElementById('moodDetailText');
+            
+            detailText.innerText = `${emoji} ${detail}`;
+            detailBox.classList.remove('hidden');
+        }
+
+        // -------------------------------------------------------------
+        // 4. SECRET NOTES & LOVE COUPONS
+        // -------------------------------------------------------------
+        const secretNotes = [
+            "Cảm ơn em vì đã luôn kiên nhẫn và đồng hành cùng anh mỗi ngày! ❤️",
+            "Hôm nay em trông rất xinh đẹp đấy, nhớ cười nhiều lên nhé! ✨",
+            "Dù công việc có bận rộn đến mấy, anh vẫn luôn nghĩ về em đầu tiên! 💌",
+            "Tối nay anh đưa em đi ăn món em thích nhé baby! 🍕",
+            "Mỗi ngày trôi qua anh lại thấy yêu em nhiều hơn một chút! 💖"
+        ];
+
+        function openSecretNote() {
+            const randomNote = secretNotes[Math.floor(Math.random() * secretNotes.length)];
+            const contentEl = document.getElementById('secretNoteContent');
+            contentEl.style.opacity = 0;
+            setTimeout(() => {
+                contentEl.innerText = `"${randomNote}"`;
+                contentEl.style.opacity = 1;
+            }, 200);
+        }
+
+        const coupons = [
+            "🎟️ Thẻ: Miễn phí 1 ly Trà sữa Topping đầy đủ!",
+            "🎟️ Thẻ: Quyền lực bắt anh Đấm lưng & Massage 20 phút!",
+            "🎟️ Thẻ: Quyền chọn Phim xem tối nay (Anh không được cãi)!",
+            "🎟️ Thẻ: Thẻ tha lỗi 1 lần giận dỗi không cần lý do!",
+            "🎟️ Thẻ: Được anh dắt đi ăn uống thả ga cuối tuần này!"
+        ];
+
+        function drawCoupon() {
+            const randomCoupon = coupons[Math.floor(Math.random() * coupons.length)];
+            const resultEl = document.getElementById('couponResult');
+            resultEl.style.opacity = 0;
+            setTimeout(() => {
+                resultEl.innerText = randomCoupon;
+                resultEl.style.opacity = 1;
+            }, 200);
+        }
+
+        // -------------------------------------------------------------
+        // 5. DIARY TIMELINE DATA & RENDER
+        // -------------------------------------------------------------
+        let diaryEntries = [
+            {
+                id: 1,
+                title: "Chuyến Du Lịch Đà Lạt Mộng Mơ",
+                date: "2024-02-14",
+                tag: "Du lịch ✈️",
+                image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&auto=format&fit=crop&q=80",
+                content: "Buổi sáng ở Đà Lạt trời se lạnh, hai đứa nắm tay nhau đi dạo Hồ Xuân Hương rồi ghé quán cà phê nhỏ ngắm sương mù. Một kỳ nghỉ Valentine thật bình yên và hạnh phúc!",
+                likes: 12,
+                comments: ["Kỷ niệm tuyệt vời nhất của tụi mình! 💕"]
+            },
+            {
+                id: 2,
+                title: "Buổi Lễ Kỷ Niệm 1 Năm Bên Nhau",
+                date: "2024-10-20",
+                tag: "Kỷ niệm 🎁",
+                image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80",
+                content: "Anh đã tự tay chuẩn bị một bữa tối nhỏ với nến và hoa tại nhà. Cảm ơn em đã kiên nhẫn cùng anh đi qua trọn vẹn 365 ngày tràn ngập tiếng cười.",
+                likes: 24,
+                comments: ["Cảm ơn anh vì bất ngờ siêu ngọt ngào này ❤️"]
+            }
+        ];
+
+        function renderDiaryFeed() {
+            const feed = document.getElementById('diaryFeed');
+            feed.innerHTML = '';
+
+            diaryEntries.forEach((entry, index) => {
+                const isEven = index % 2 === 0;
+                const item = document.createElement('div');
+                item.className = 'relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group';
+
+                item.innerHTML = `
+                    <!-- Timeline Dot -->
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-white bg-rose-500 text-white shadow shrink-0 z-10 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                        <i class="fa-solid fa-heart text-xs"></i>
+                    </div>
+
+                    <!-- Card Content -->
+                    <div class="w-[calc(100%-2.5rem)] md:w-[calc(50%-2.5rem)] bg-white/90 p-5 rounded-2xl shadow-md border border-rose-100 hover:shadow-lg transition space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-500 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-100">${entry.tag}</span>
+                            <span class="text-xs text-gray-400 font-medium"><i class="fa-regular fa-calendar mr-1"></i>${entry.date}</span>
+                        </div>
+
+                        <h3 class="text-base md:text-lg font-bold text-gray-800">${entry.title}</h3>
+                        
+                        ${entry.image ? `<img src="${entry.image}" alt="${entry.title}" class="w-full h-40 object-cover rounded-xl shadow-sm border border-gray-100" onerror="this.style.display='none'">` : ''}
+
+                        <p class="text-xs md:text-sm text-gray-600 leading-relaxed">${entry.content}</p>
+
+                        <!-- Likes & Comment Interaction -->
+                        <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+                            <button onclick="likeEntry(${entry.id})" class="flex items-center gap-1.5 text-rose-500 font-bold hover:scale-105 active:scale-95 transition">
+                                <i class="fa-solid fa-heart"></i>
+                                <span id="like-count-${entry.id}">${entry.likes}</span> Thả tim
+                            </button>
+                            <span class="text-gray-400 font-medium">${entry.comments.length} Bình luận</span>
+                        </div>
+
+                        <!-- Comment list display -->
+                        <div class="space-y-1.5 pt-1">
+                            ${entry.comments.map(c => `
+                                <div class="bg-rose-50/60 p-2 rounded-xl text-[11px] text-gray-700 flex items-start gap-1.5">
+                                    <i class="fa-solid fa-comment-dots text-rose-400 mt-0.5"></i>
+                                    <span>${c}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Comment Form Input -->
+                        <div class="flex gap-1.5 pt-1">
+                            <input type="text" id="comment-input-${entry.id}" placeholder="Để lại câu trả lời ngọt ngào..." 
+                                   class="w-full px-3 py-1.5 bg-gray-50 rounded-xl text-xs border border-gray-200 focus:outline-none focus:border-rose-400">
+                            <button onclick="addComment(${entry.id})" class="px-3 py-1.5 bg-rose-500 text-white font-bold text-xs rounded-xl hover:bg-rose-600 transition shrink-0">
+                                Gửi
+                            </button>
+                        </div>
+                    </div>
+                `;
+                feed.appendChild(item);
+            });
+        }
+
+        function likeEntry(id) {
+            const entry = diaryEntries.find(e => e.id === id);
+            if (entry) {
+                entry.likes++;
+                document.getElementById(`like-count-${id}`).innerText = entry.likes;
+            }
+        }
+
+        function addComment(id) {
+            const input = document.getElementById(`comment-input-${id}`);
+            const text = input.value.trim();
+            if (text) {
+                const entry = diaryEntries.find(e => e.id === id);
+                if (entry) {
+                    entry.comments.push(text);
+                    renderDiaryFeed();
+                }
+            }
+        }
+
+        // -------------------------------------------------------------
+        // 6. MODAL HANDLERS FOR ADDING DIARY
+        // -------------------------------------------------------------
+        function toggleModal(show) {
+            const modal = document.getElementById('addModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                // Set default date as today
+                document.getElementById('entryDate').valueAsDate = new Date();
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function handleAddDiary(event) {
+            event.preventDefault();
+            const title = document.getElementById('entryTitle').value;
+            const date = document.getElementById('entryDate').value;
+            const tag = document.getElementById('entryTag').value;
+            const image = document.getElementById('entryImage').value;
+            const content = document.getElementById('entryContent').value;
+
+            const newEntry = {
+                id: Date.now(),
+                title: title,
+                date: date,
+                tag: tag,
+                image: image || null,
+                content: content,
+                likes: 1,
+                comments: []
+            };
+
+            diaryEntries.unshift(newEntry);
+            renderDiaryFeed();
+            toggleModal(false);
+            
+            // Reset Form
+            document.getElementById('diaryForm').reset();
+        }
+
+        // -------------------------------------------------------------
+        // 7. MUSIC PLAYER CONTROLLER
+        // -------------------------------------------------------------
+        const songs = [
+            { title: "Perfect - Ed Sheeran", src: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" },
+            { title: "Until I Found You - Stephen Sanchez", src: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a7321d.mp3?filename=romantic-acoustic-guitar-11003.mp3" },
+            { title: "Lover - Taylor Swift", src: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_9422df5c3b.mp3?filename=sweet-love-125078.mp3" }
+        ];
+        let currentSongIndex = 0;
+        let isPlaying = false;
+
+        const audio = document.getElementById('bgMusic');
+        const playBtn = document.getElementById('playBtn');
+        const songTitle = document.getElementById('songTitle');
+        const musicDisk = document.getElementById('musicDisk');
+
+        function togglePlayMusic() {
+            if (isPlaying) {
+                audio.pause();
+                playBtn.innerHTML = '<i class="fa-solid fa-play text-xs"></i>';
+                musicDisk.classList.remove('animate-spin');
+            } else {
+                audio.play();
+                playBtn.innerHTML = '<i class="fa-solid fa-pause text-xs"></i>';
+                musicDisk.classList.add('animate-spin');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            songTitle.innerText = songs[currentSongIndex].title;
+            audio.src = songs[currentSongIndex].src;
+            if (isPlaying) {
+                audio.play();
+            }
+        }
+
+        // Initialize feed on load
+        window.onload = function() {
+            renderDiaryFeed();
+        };
+    </script>
+</body>
+</html>

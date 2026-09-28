@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Gate - Cánh Cổng Tình Yêu</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Confetti JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --pink-bright: #ff6b81;
+            --pink-soft: #ff8e9e;
+            --pink-light: #ffafbd;
+            --pink-bg: #fff0f3;
+            --purple-accent: #a29bfe;
+            --gold-glow: #fdcb6e;
+            --text-main: #2d3436;
+            --text-sub: #636e72;
+            --card-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffe6ea 0%, #ffc0cb 50%, #e8c5ff 100%);
+            background-size: 300% 300%;
+            animation: gradientShift 10s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            color: var(--text-main);
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #heartCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 420px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 35px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(255, 107, 129, 0.25), 0 0 20px rgba(255, 255, 255, 0.8);
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .mascot-container {
+            position: relative;
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 15px;
+        }
+
+        .mascot-heart {
+            font-size: 75px;
+            color: var(--pink-bright);
+            filter: drop-shadow(0 5px 15px rgba(255, 107, 129, 0.5));
+            animation: floatHeart 2s infinite alternate ease-in-out;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes floatHeart {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-8px) scale(1.08); }
+        }
+
+        .mascot-face {
+            position: absolute;
+            top: 45%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+        }
+
+        .eyes-row {
+            display: flex;
+            gap: 14px;
+        }
+
+        .eye {
+            width: 7px; height: 9px;
+            background: #2d3436;
+            border-radius: 50%;
+            animation: blink 3.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .smile {
+            width: 10px; height: 5px;
+            border-bottom: 2px solid #2d3436;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.6rem;
+            color: var(--pink-bright);
+            text-shadow: 0 2px 10px rgba(255, 107, 129, 0.3);
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 25px;
+            min-height: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .input-step-wrapper {
+            position: relative;
+            min-height: 160px;
+            overflow: hidden;
+        }
+
+        .step-box {
+            position: absolute;
+            width: 100%;
+            top: 0; left: 0;
+            opacity: 0;
+            transform: translateX(100px) scale(0.9);
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .step-box.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: all;
+        }
+
+        .step-box.exit-left {
+            opacity: 0;
+            transform: translateX(-100px) scale(0.9);
+            pointer-events: none;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 14px 18px 14px 45px;
+            background: #ffffff;
+            border: 2px solid rgba(255, 107, 129, 0.25);
+            border-radius: 20px;
+            color: var(--text-main);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input:focus {
+            border-color: var(--pink-bright);
+            box-shadow: 0 0 15px rgba(255, 107, 129, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--pink-bright);
+            font-size: 1.1rem;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, var(--pink-bright), #e84393);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(255, 107, 129, 0.35);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 22px rgba(255, 107, 129, 0.5);
+        }
+
+        .sub-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding: 0 5px;
+        }
+
+        .link-btn {
+            background: transparent;
+            border: none;
+            color: var(--pink-bright);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .link-btn:hover {
+            color: #e84393;
+            transform: translateY(-1px);
+        }
+
+        .shake-error {
+            animation: shake 0.5s ease-in-out !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-12px); }
+            40%, 80% { transform: translateX(12px); }
+        }
+
+        .success-portal {
+            animation: portalOpen 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes portalOpen {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15) rotate(3deg); }
+            100% { transform: scale(0) rotate(-10deg); opacity: 0; }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(45, 52, 54, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-box {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(255, 107, 129, 0.3);
+            border-radius: 30px;
+            padding: 30px;
+            width: 90%;
+            max-width: 360px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(255, 107, 129, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            color: var(--gold-glow);
+            margin-bottom: 15px;
+            filter: drop-shadow(0 4px 8px rgba(253, 203, 110, 0.4));
+        }
+
+        .modal-close-btn {
+            margin-top: 20px;
+            background: linear-gradient(45deg, var(--pink-bright), #e84393);
+            border: none;
+            color: #fff;
+            padding: 10px 28px;
+            border-radius: 18px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 107, 129, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 129, 0.5);
+        }
+
+        .editor-view {
+            display: none;
+            width: 90%;
+            max-width: 600px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(255, 107, 129, 0.25);
+            z-index: 20;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas hạt đom đốm trái tim -->
+    <canvas id="heartCanvas"></canvas>
+
+    <!-- 1. MÀN HÌNH ĐĂNG NHẬP CARD -->
+    <div class="login-card" id="loginCard">
+        
+        <!-- Mascot Trái Tim Tương Tác -->
+        <div class="mascot-container">
+            <i class="fa-solid fa-heart mascot-heart" id="mascotHeart"></i>
+            <div class="mascot-face">
+                <div class="eyes-row">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
+                </div>
+                <div class="smile"></div>
+            </div>
+        </div>
+
+        <h1 class="title">Love Space</h1>
+        <p class="subtitle" id="subTitle">Xác nhận danh tính người thương...</p>
+
+        <!-- KHU VỰC CÁC BƯỚC NHẬP (STEP BY STEP) -->
+        <div class="input-step-wrapper">
+            
+            <!-- BƯỚC 1: Nhập tên + Nút Tạo nhật ký -->
+            <div class="step-box active" id="step1">
+                <div class="input-group">
+                    <i class="fa-solid fa-user-heart input-icon"></i>
+                    <input type="text" class="custom-input" id="nameInput" placeholder="Tên hoặc biệt danh của bạn..." autocomplete="off">
+                </div>
+                
+                <button class="action-btn" onclick="goToStep2()">
+                    Tiếp theo <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <div class="sub-links">
+                    <button class="link-btn" onclick="openCreateDiaryUI()">
+                        <i class="fa-solid fa-pen-nib"></i> Tạo nhật ký mới
+                    </button>
+                    <span style="font-size:0.75rem; color:var(--text-sub);">Hôm nay 2026 💕</span>
+                </div>
+            </div>
+
+            <!-- BƯỚC 2: Nhập bí mật + Nút Quên mật mã -->
+            <div class="step-box" id="step2">
+                <div class="input-group">
+                    <i class="fa-solid fa-key input-icon"></i>
+                    <input type="password" class="custom-input" id="secretInput" placeholder="Mật mã trái tim..." autocomplete="off">
+                </div>
+
+                <button class="action-btn" onclick="attemptLogin()">
+                    Mở Cổng Tình Yêu <i class="fa-solid fa-heart-pulse"></i>
+                </button>
+
+                <div class="sub-links">
+                    <button class="link-btn" onclick="goToStep1()">
+                        <i class="fa-solid fa-rotate-left"></i> Nhập lại tên
+                    </button>
+                    <button class="link-btn" onclick="showForgetPopup()">
+                        <i class="fa-solid fa-circle-question"></i> Quên mật mã?
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 2. POPUP THÔNG BÁO QUÊN MẬT MÃ -->
+    <div class="modal-overlay" id="forgetModal">
+        <div class="modal-box">
+            <i class="fa-solid fa-wrench modal-icon"></i>
+            <h3 style="color: var(--pink-bright); margin-bottom: 10px; font-weight: 700;">Tính năng đang phát triển!</h3>
+            <p style="font-size: 0.9rem; color: var(--text-sub); line-height: 1.6;">
+                Hệ thống khôi phục mật mã đang được hoàn thiện.<br>
+                Vui lòng liên hệ Email: <strong style="color: var(--pink-bright);">support@lovespace.vn</strong> để nhận hỗ trợ nhé 💖
+            </p>
+            <button class="modal-close-btn" onclick="closeForgetPopup()">Đã hiểu</button>
+        </div>
+    </div>
+
+    <!-- 3. UI TẠO NHẬT KÝ MỚI (CHUYỂN SANG KHI BẤM "TẠO NHẬT KÝ NỔI") -->
+    <div class="editor-view" id="editorCard">
+        <h2 style="font-family: 'Playfair Display', serif; color: var(--pink-bright); margin-bottom: 15px;">
+            <i class="fa-solid fa-feather"></i> Viết Trang Nhật Ký Mới
+        </h2>
+        <input type="text" placeholder="Tiêu đề kỷ niệm..." class="custom-input" style="margin-bottom: 15px; padding-left: 20px;">
+        <textarea rows="6" placeholder="Nội dung tâm tư hôm nay..." class="custom-input" style="padding-left: 20px; resize: none; margin-bottom: 15px; height: auto;"></textarea>
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button onclick="backToLogin()" style="padding: 10px 20px; background: #ffffff; border: 2px solid rgba(255, 107, 129, 0.3); color: var(--pink-bright); border-radius: 15px; cursor: pointer; font-weight: 600;">Quay lại</button>
+            <button onclick="alert('Đã lưu nhật ký mới!')" class="action-btn" style="width: auto; padding: 10px 25px; border-radius: 15px;">Lưu kỷ niệm</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class FloatingHeart {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 20;
+                this.size = Math.random() * 14 + 10;
+                this.speedY = Math.random() * 1.2 + 0.4;
+                this.speedX = Math.sin(Math.random() * Math.PI) * 0.6;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.color = `hsl(${Math.random() * 20 + 345}, 100%, 75%)`;
+            }
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                if (this.y < -20) this.reset();
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.font = `${this.size}px FontAwesome`;
+                ctx.fillText('💖', this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < 30; i++) particles.push(new FloatingHeart());
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        let userName = '';
+        const nameInput = document.getElementById('nameInput');
+        const secretInput = document.getElementById('secretInput');
+        const mascotHeart = document.getElementById('mascotHeart');
+        const subTitle = document.getElementById('subTitle');
+        const loginCard = document.getElementById('loginCard');
+
+        nameInput.addEventListener('input', () => {
+            mascotHeart.style.transform = `scale(${1 + nameInput.value.length * 0.015})`;
+        });
+
+        nameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') goToStep2(); });
+        secretInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') attemptLogin(); });
+
+        function goToStep2() {
+            userName = nameInput.value.trim();
+            if (!userName) {
+                triggerError("Vui lòng nhập tên của bạn nhé!");
+                return;
+            }
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('exit-left');
+
+            setTimeout(() => {
+                document.getElementById('step2').classList.add('active');
+                subTitle.innerHTML = `Chào <b>${userName}</b>! Nhập mật mã bí mật nhé 💕`;
+                secretInput.focus();
+            }, 300);
+        }
+
+        function goToStep1() {
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').classList.remove('exit-left');
+            document.getElementById('step1').classList.add('active');
+            subTitle.innerText = "Xác nhận danh tính người thương...";
+            nameInput.focus();
+        }
+
+        function attemptLogin() {
+            const secret = secretInput.value.trim();
+            if (secret === "" || secret.toLowerCase() === "sai") {
+                triggerError("Mật mã chưa đúng! Trái tim hờn dỗi nhẹ 🥺");
+            } else {
+                triggerSuccess();
+            }
+        }
+
+        function triggerError(msg) {
+            subTitle.innerText = msg;
+            subTitle.style.color = "#d63031";
+            loginCard.classList.add('shake-error');
+            mascotHeart.style.color = "#b2bec3";
+
+            setTimeout(() => loginCard.classList.remove('shake-error'), 500);
+            setTimeout(() => {
+                mascotHeart.style.color = "var(--pink-bright)";
+                subTitle.style.color = "var(--text-sub)";
+            }, 2000);
+        }
+
+        function triggerSuccess() {
+            subTitle.innerText = "Xác minh thành công! Đang mở cổng Tình Yêu...";
+            subTitle.style.color = "var(--pink-bright)";
+            subTitle.style.fontWeight = "bold";
+
+            confetti({
+                particleCount: 180,
+                spread: 90,
+                origin: { y: 0.6 },
+                colors: ['#ff6b81', '#ff8e9e', '#ffeaa7', '#ffffff']
+            });
+
+            setTimeout(() => loginCard.classList.add('success-portal'), 500);
+            setTimeout(() => alert(`Chào mừng ${userName} quay trở lại! 💕`), 1500);
+        }
+
+        function showForgetPopup() {
+            document.getElementById('forgetModal').classList.add('active');
+        }
+
+        function closeForgetPopup() {
+            document.getElementById('forgetModal').classList.remove('active');
+        }
+
+        function openCreateDiaryUI() {
+            loginCard.style.display = 'none';
+            document.getElementById('editorCard').style.display = 'block';
+        }
+
+        function backToLogin() {
+            document.getElementById('editorCard').style.display = 'none';
+            loginCard.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
